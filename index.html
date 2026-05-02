@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Keto Kitchen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0e0d;
+  --bg2: #1a1815;
+  --bg3: #242220;
+  --card: #1e1c1a;
+  --border: #2e2b28;
+  --text: #f0ece6;
+  --text2: #9e9890;
+  --text3: #6b6660;
+  --accent: #d4a853;
+  --accent2: #c4733a;
+  --green: #4a8c5c;
+  --red: #c45a3a;
+  --blue: #4a7ab5;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --nav-h: 72px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+[data-theme="light"] {
+  --bg: #f7f3ed;
+  --bg2: #efe9e0;
+  --bg3: #e6ddd0;
+  --card: #ffffff;
+  --border: #d8cfc4;
+  --text: #1a1612;
+  --text2: #6b5f50;
+  --text3: #9e8e7a;
+  --accent: #b8841e;
+  --accent2: #a05828;
+  --green: #2d6b3e;
+  --red: #a03822;
+  --blue: #2d5a8e;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;}
+#app{height:100%;display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative;overflow:hidden;}
+.page{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--nav-h) + var(--safe-bottom));-webkit-overflow-scrolling:touch;}
+.page::-webkit-scrollbar{display:none;}
+
+/* BOTTOM NAV */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:calc(var(--nav-h) + var(--safe-bottom));padding-bottom:var(--safe-bottom);background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:flex-start;padding-top:8px;z-index:100;backdrop-filter:blur(20px);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;color:var(--text3);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;padding:4px 0;transition:color 0.2s;}
+.nav-btn.active{color:var(--accent);}
+.nav-btn svg{width:22px;height:22px;}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);opacity:0;transition:opacity 0.2s;}
+.nav-btn.active .nav-dot{opacity:1;}
+
+/* TYPOGRAPHY */
+.display{font-family:'Playfair Display',serif;}
+h1.display{font-size:32px;line-height:1.1;font-weight:900;}
+h2.display{font-size:24px;line-height:1.2;font-weight:700;}
+
+/* CARDS */
+.recipe-card{background:var(--card);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;}
+.recipe-card:active{transform:scale(0.97);}
+.recipe-card-img{width:100%;height:160px;object-fit:cover;background:var(--bg3);display:block;}
+.recipe-card-img-placeholder{width:100%;height:160px;background:linear-gradient(135deg,var(--bg3),var(--bg2));display:flex;align-items:center;justify-content:center;font-size:48px;}
+.recipe-card-body{padding:14px;}
+.recipe-card-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;line-height:1.3;margin-bottom:6px;}
+.recipe-card-meta{display:flex;gap:10px;font-size:12px;color:var(--text2);}
+.recipe-card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.tag{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+.tag.active{background:var(--accent);color:#000;border-color:var(--accent);}
+
+/* MACROS */
+.macro-row{display:flex;gap:8px;}
+.macro-pill{flex:1;background:var(--bg3);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;}
+.macro-val{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--accent);}
+.macro-lbl{font-size:10px;color:var(--text3);margin-top:2px;}
+
+/* SEARCH */
+.search-wrap{padding:12px 16px;position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--border);}
+.search-input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 16px 10px 40px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;}
+.search-input::placeholder{color:var(--text3);}
+.search-icon{position:absolute;left:28px;top:50%;transform:translateY(-50%);color:var(--text3);}
+.search-wrap{position:relative;}
+
+/* HEADER */
+.page-header{padding:20px 16px 8px;display:flex;justify-content:space-between;align-items:center;}
+.page-header-actions{display:flex;gap:8px;}
+.icon-btn{width:38px;height:38px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);}
+.icon-btn:active{opacity:0.7;}
+
+/* TAGS SCROLL */
+.tags-scroll{display:flex;gap:8px;padding:8px 16px 12px;overflow-x:auto;scrollbar-width:none;}
+.tags-scroll::-webkit-scrollbar{display:none;}
+
+/* RECIPE GRID */
+.recipe-grid{padding:0 12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.recipe-grid .recipe-card-img-placeholder{height:120px;font-size:36px;}
+.recipe-grid .recipe-card-body{padding:10px;}
+.recipe-grid .recipe-card-title{font-size:13px;}
+
+/* DETAIL PAGE */
+.detail-header{position:relative;}
+.detail-hero{width:100%;height:260px;object-fit:cover;background:var(--bg3);display:block;}
+.detail-hero-placeholder{width:100%;height:260px;background:linear-gradient(135deg,var(--bg3),var(--bg2));display:flex;align-items:center;justify-content:center;font-size:72px;}
+.detail-back{position:absolute;top:16px;left:16px;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;}
+.detail-fav{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;}
+.detail-body{padding:20px 16px;}
+.detail-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;line-height:1.2;margin-bottom:12px;}
+.detail-actions{display:flex;gap:10px;margin-bottom:20px;}
+.btn-primary{flex:1;background:var(--accent);color:#000;border:none;border-radius:var(--radius-sm);padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s;}
+.btn-primary:active{opacity:0.8;}
+.btn-secondary{background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;}
+.scaler{display:flex;align-items:center;gap:12px;background:var(--bg2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:20px;border:1px solid var(--border);}
+.scaler-btn{width:32px;height:32px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.scaler-val{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;flex:1;text-align:center;}
+.section-title{font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;margin-top:24px;}
+.ingredient-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.ingredient-item:last-child{border-bottom:none;}
+.ingredient-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.ingredient-check.checked{background:var(--green);border-color:var(--green);}
+.step-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);}
+.step-item:last-child{border-bottom:none;}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#000;font-family:'DM Mono',monospace;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.step-text{font-size:14px;line-height:1.6;color:var(--text2);}
+
+/* COOK MODE */
+.cook-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column;max-width:430px;left:50%;transform:translateX(-50%);}
+.cook-progress-bar{height:3px;background:var(--bg3);position:relative;}
+.cook-progress-fill{height:100%;background:var(--accent);transition:width 0.4s ease;}
+.cook-header{padding:16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.cook-close{width:36px;height:36px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.cook-recipe-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cook-step-count{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;}
+.cook-main{flex:1;overflow-y:auto;padding:20px 16px;}
+.cook-step-card{background:var(--card);border-radius:var(--radius);padding:20px;border:1px solid var(--border);margin-bottom:16px;}
+.cook-step-label{font-size:11px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;}
+.cook-step-text{font-size:17px;line-height:1.6;color:var(--text);}
+.cook-ingredients-for-step{background:var(--bg2);border-radius:var(--radius-sm);padding:12px;margin-top:14px;border:1px solid var(--border);}
+.cook-ing-label{font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;}
+.cook-ing-item{font-size:13px;color:var(--text2);padding:3px 0;}
+
+/* TIMER */
+.cook-timer{background:var(--bg2);border-radius:var(--radius);padding:16px;margin-top:12px;border:1px solid var(--accent);}
+.timer-display{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:var(--accent);text-align:center;margin-bottom:12px;}
+.timer-ring{position:relative;width:80px;height:80px;margin:0 auto 12px;}
+.timer-ring svg{transform:rotate(-90deg);}
+.timer-ring-bg{fill:none;stroke:var(--bg3);stroke-width:6;}
+.timer-ring-fill{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 1s linear;}
+.timer-time-inside{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--accent);}
+.timer-btns{display:flex;gap:8px;justify-content:center;}
+.timer-btn{padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
+.timer-btn.primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600;}
+
+/* COOK FOOTER */
+.cook-footer{padding:16px;border-top:1px solid var(--border);display:flex;gap:10px;}
+.cook-prev{width:52px;height:52px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.cook-next{flex:1;background:var(--accent);color:#000;border:none;border-radius:var(--radius-sm);padding:16px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.cook-voice{width:52px;height:52px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.cook-voice.active{background:var(--red);border-color:var(--red);color:white;}
+
+/* SHOPPING */
+.shop-section{padding:0 16px;}
+.shop-cat-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;padding:16px 0 8px;}
+.shop-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.shop-item:last-child{border-bottom:none;}
+.shop-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);flex-shrink:0;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.shop-check.checked{background:var(--green);border-color:var(--green);}
+.shop-item-name{flex:1;}
+.shop-item-name.done{text-decoration:line-through;color:var(--text3);}
+.shop-del{width:28px;height:28px;border-radius:50%;background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;}
+
+/* PLANNER */
+.planner-grid{padding:16px;display:grid;grid-template-columns:60px repeat(7,1fr);gap:4px;}
+.planner-day-header{font-size:10px;font-weight:600;color:var(--text3);text-align:center;padding:4px 0;text-transform:uppercase;}
+.planner-meal-label{font-size:10px;color:var(--text3);display:flex;align-items:center;padding-right:4px;}
+.planner-slot{background:var(--bg2);border-radius:8px;min-height:52px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:4px;font-size:9px;text-align:center;color:var(--text2);line-height:1.3;transition:background 0.2s;}
+.planner-slot.filled{background:var(--bg3);color:var(--text);border-color:var(--accent);}
+.planner-slot:hover{border-color:var(--accent);}
+
+/* CHAT */
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.chat-messages::-webkit-scrollbar{display:none;}
+.chat-bubble{max-width:85%;padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.6;}
+.chat-bubble.user{align-self:flex-end;background:var(--accent);color:#000;border-radius:18px 18px 4px 18px;}
+.chat-bubble.ai{align-self:flex-start;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:18px 18px 18px 4px;}
+.chat-input-wrap{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:10px;background:var(--bg);}
+.chat-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:10px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;}
+.chat-send{width:44px;height:44px;border-radius:50%;background:var(--accent);border:none;color:#000;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* MISC */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
+.empty-emoji{font-size:48px;margin-bottom:12px;}
+.empty-text{font-size:14px;}
+.floating-timers{position:fixed;top:16px;right:16px;z-index:150;display:flex;flex-direction:column;gap:8px;}
+.float-timer{background:var(--accent);color:#000;padding:8px 12px;border-radius:24px;font-family:'DM Mono',monospace;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.3);}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;}
+.chip.green{background:rgba(74,140,92,0.2);color:var(--green);}
+.chip.orange{background:rgba(196,115,58,0.2);color:var(--accent2);}
+.chip.blue{background:rgba(74,122,181,0.2);color:var(--blue);}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+.animate-in{animation:fadeIn 0.3s ease forwards;}
+.slide-up{animation:slideUp 0.4s ease forwards;}
+
+/* FAV HEART */
+.fav-heart{color:var(--text3);}
+.fav-heart.active{color:#e05;fill:#e05;}
+
+/* RECENTLY COOKED */
+.recent-scroll{display:flex;gap:12px;padding:8px 16px;overflow-x:auto;scrollbar-width:none;}
+.recent-scroll::-webkit-scrollbar{display:none;}
+.recent-card{width:130px;flex-shrink:0;background:var(--card);border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);cursor:pointer;}
+.recent-card img,.recent-card .recent-img-ph{width:100%;height:80px;object-fit:cover;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:28px;}
+.recent-card-name{padding:8px;font-size:12px;font-weight:500;line-height:1.3;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;display:flex;align-items:flex-end;max-width:430px;left:50%;transform:translateX(-50%);}
+.modal-sheet{background:var(--bg2);border-radius:20px 20px 0 0;width:100%;padding:20px 16px;padding-bottom:calc(20px + var(--safe-bottom));max-height:80vh;overflow-y:auto;}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:16px;}
+.modal-recipe-list{display:flex;flex-direction:column;gap:8px;}
+.modal-recipe-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg3);border-radius:var(--radius-sm);cursor:pointer;border:1px solid var(--border);}
+.modal-recipe-item:active{opacity:0.7;}
+.modal-recipe-name{font-size:14px;font-weight:500;}
+.modal-recipe-carbs{font-size:12px;color:var(--text3);}
+
+/* LOADING */
+.loading-dots{display:flex;gap:6px;align-items:center;padding:8px 0;}
+.loading-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.4s ease infinite;}
+.loading-dot:nth-child(2){animation-delay:0.2s;}
+.loading-dot:nth-child(3){animation-delay:0.4s;}
+
+/* HERO SECTION */
+.home-hero{padding:24px 16px 8px;}
+.home-greeting{font-size:13px;color:var(--text3);margin-bottom:4px;}
+.home-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;line-height:1.1;}
+.home-title span{color:var(--accent);}
+
+/* STATS ROW */
+.stats-row{display:flex;gap:10px;padding:16px 16px 8px;overflow-x:auto;scrollbar-width:none;}
+.stat-card{flex-shrink:0;background:var(--card);border-radius:var(--radius-sm);padding:12px 16px;border:1px solid var(--border);min-width:100px;}
+.stat-num{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--accent);}
+.stat-lbl{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* THEME TOGGLE */
+.theme-toggle{width:38px;height:38px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:18px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- Floating timers -->
+  <div class="floating-timers" id="floatingTimers"></div>
+
+  <!-- Pages -->
+  <div class="page" id="page-home" style="display:none"></div>
+  <div class="page" id="page-recipes" style="display:none"></div>
+  <div class="page" id="page-planner" style="display:none"></div>
+  <div class="page" id="page-shopping" style="display:none"></div>
+  <div class="page" id="page-chat" style="display:flex;flex-direction:column;display:none"></div>
+
+  <!-- Bottom Nav -->
+  <nav class="nav">
+    <button class="nav-btn active" data-page="home" onclick="nav('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+      Home
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" data-page="recipes" onclick="nav('recipes')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Recipes
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" data-page="planner" onclick="nav('planner')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Planner
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" data-page="shopping" onclick="nav('shopping')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      Shopping
+      <div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" data-page="chat" onclick="nav('chat')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Chef AI
+      <div class="nav-dot"></div>
+    </button>
+  </nav>
+</div>
+
+<!-- Cook Mode (full overlay) -->
+<div id="cookMode" style="display:none"></div>
+
+<script>
+const ALL=[
+  {id:1,name:'Scrambled eggs with avocado',carbs:2,protein:18,fat:28,time:'10 mins',tags:['breakfast','quick'],
+   ingredients:['3 large eggs','1 avocado sliced','1 tbsp butter','Salt and pepper','Optional: chives'],
+   steps:['Melt butter in pan over medium heat','Whisk eggs with salt and pepper','Pour into pan, stir gently until just set','Serve with sliced avocado']},
+  {id:2,name:'Cauliflower cheese soup',carbs:6,protein:12,fat:20,time:'30 mins',tags:['lunch','batch cook','vegetarian'],
+   ingredients:['1 head cauliflower chopped','500ml chicken stock low sodium','100ml double cream','80g cheddar grated','1 onion diced','2 garlic cloves','Salt pepper nutmeg'],
+   steps:['Saute onion and garlic in butter 5 mins','Add cauliflower and stock simmer 20 mins','Blend smooth','Stir in cream and cheese','Season and serve']},
+  {id:3,name:'Baked salmon with greens',carbs:3,protein:35,fat:22,time:'25 mins',tags:['dinner','omega-3','quick'],
+   ingredients:['2 salmon fillets','200g tenderstem broccoli','2 tbsp olive oil','1 lemon','2 garlic cloves minced','Salt pepper dill'],
+   steps:['Heat oven to 200C','Place salmon on tray drizzle oil','Add broccoli around salmon','Season with garlic and lemon','Bake 15-18 mins until salmon flakes']},
+  {id:4,name:'Keto cottage pie with cauliflower mash',carbs:8,protein:42,fat:28,time:'60 mins (batch 6)',tags:['dinner','batch cook','freezer friendly','high protein'],
+   ingredients:['750g beef mince 20% fat','1 large cauliflower cut into florets','150g full fat cream cheese','2 medium onions diced','1 stick celery finely diced','150g mushrooms roughly chopped','1 medium carrot finely diced','2 big handfuls fresh spinach or 100g frozen squeezed dry','4 garlic cloves (2 for mince 2 for mash)','2 tbsp tomato puree not ketchup','1 tbsp Worcestershire sauce Lea and Perrins is best','1 Knorr beef stock pot','250ml boiling water','1 tsp dried thyme','1 tsp dried rosemary','Salt and black pepper','1 tbsp olive oil or butter'],
+   steps:['Preheat oven to 190C','Brown mince in batches in oil - do not crowd. Drain excess liquid and set aside','Fry onion celery and carrot 8 mins until softened','Add mushrooms cook 3 mins until they release moisture','Add 2 garlic cloves cook 1 min then add tomato puree stir 2 mins to caramelise','Dissolve stock pot in 250ml boiling water add with Worcestershire sauce and herbs','Return mince simmer 15-20 mins until thick. Season well','Stir in spinach put lid on 2 mins until wilted','Boil cauliflower until very tender 12-15 mins drain and steam dry in colander - important or mash goes watery','Blend cauliflower with cream cheese 2 garlic cloves salt and pepper until smooth','Spoon mince into baking dish top with cauliflower mash','Bake 20-25 mins until golden on top','Cool fully portion into 6 containers. Fridge 4 days freeze the rest','TIP: Tomato puree and Worcestershire sauce are keto safe in these amounts']},
+  {id:5,name:'Keto burger buns (ground almond)',carbs:2,protein:6,fat:14,time:'20 mins (makes 4)',tags:['bread','air fryer','quick','freezer friendly'],
+   ingredients:['120g ground almonds','1 large egg','2 tbsp cold water','1 tsp baking powder','1/2 tsp apple cider vinegar','1/2 tsp onion powder','1/2 tsp dried oregano','1/4 tsp salt'],
+   steps:['Preheat air fryer to 180C','Mix ground almonds baking powder onion powder oregano and salt','Whisk egg cold water and apple cider vinegar separately','Pour wet into dry mix into thick dough','Divide into 4 shape into flat rounds 2cm thick on parchment','Air fry 180C 12-14 mins until golden','Tap bottom - should sound hollow. Cool 5 mins before slicing','Freeze any not eaten within 2 days - defrost well']},
+  {id:6,name:'Keto burger buns (brazil nut)',carbs:2,protein:5,fat:18,time:'20 mins (makes 4)',tags:['bread','air fryer','quick','high fat'],
+   ingredients:['120g raw unsalted brazil nuts','1 large egg','3 tbsp cold water','1 tsp baking powder','1/2 tsp apple cider vinegar','1/2 tsp onion powder','1/2 tsp dried oregano','1/4 tsp salt'],
+   steps:['Preheat air fryer to 180C','Blitz brazil nuts in Ninja to fine powder first - do not skip','Add egg cold water and apple cider vinegar blend to thick paste','Add baking powder onion powder oregano and salt pulse briefly','Spoon onto parchment shape into 4 flat rounds 2cm thick','Air fry 180C 12-14 mins - brazil nuts brown faster so watch them','Cool 5 mins before slicing - richer nuttier than almond version','NOTE: Limit to 1-2 buns per day if eating brazil nuts regularly']},
+  {id:7,name:'Keto burger buns (cottage cheese)',carbs:2,protein:9,fat:8,time:'25 mins (makes 4)',tags:['bread','air fryer','high protein','cottage cheese'],
+   ingredients:['125g full fat cottage cheese','2 large eggs','80g ground almonds','1 tsp baking powder','1/2 tsp garlic powder','1/4 tsp salt','1 tbsp sesame seeds for topping'],
+   steps:['Preheat air fryer to 180C','Blend cottage cheese until completely smooth - lumps make uneven buns','Whisk eggs into blended cottage cheese','Add ground almonds baking powder garlic powder and salt mix into thick batter','Spoon into 4 mounds on parchment spread into rounds 2cm thick','Sprinkle sesame seeds on top press in lightly','Air fry 180C 15-18 mins until deep golden and firm','Cool fully on rack before slicing - firms up as it cools. Highest protein bun']},
+  {id:8,name:'Keto coffee walnut cake',carbs:4,protein:7,fat:18,time:'45 mins (serves 10)',tags:['baking','sweet treat','cake','walnuts'],
+   ingredients:['150g ground almonds','50g coconut flour','30g ground golden flaxseed','1 tsp bicarbonate of soda','2 tsp baking powder','2 tbsp instant coffee dissolved in 3 tbsp hot water cooled','4 large eggs','120ml melted butter or coconut oil','100g Pure Via caster sugar alternative','1 tsp vanilla extract','100g chopped walnuts','Pinch of salt','ICING: 200g full fat cream cheese','ICING: 4 tbsp Pure Via powdered icing sugar alternative','ICING: 1 tsp vanilla','ICING: 1/2 tsp instant coffee in 1 tsp hot water'],
+   steps:['Preheat oven to 160C grease and line 20cm tin - use 160C not 170C to prevent burning','Mix dry ingredients: ground almonds coconut flour flaxseed bicarb baking powder Pure Via caster and salt','Whisk eggs melted butter cooled coffee and vanilla together','Pour wet into dry mix well - batter will be thick from coconut flour this is normal','Fold in walnuts reserving a few for top','Spoon into tin smooth top scatter reserved walnuts','Check at 20 mins - cover loosely with foil if browning too fast','Bake until skewer comes out clean - about 25-30 mins','Cool completely in tin before icing','ICING: Beat cream cheese until smooth add Pure Via powdered vanilla and coffee beat until fluffy','Spread over cooled cake slice into 10. Fridge up to 4 days','TIP: For moisture add 2 tbsp full fat Greek yogurt to batter. Wrap tightly to store']},
+  {id:9,name:'Keto blueberry bakewell tart',carbs:5,protein:8,fat:22,time:'55 mins (serves 8)',tags:['baking','sweet treat','tart','blueberry','almond'],
+   ingredients:['PASTRY: 180g ground almonds','PASTRY: 50g melted butter','PASTRY: 2 tbsp Pure Via powdered','PASTRY: 1/4 tsp salt','PASTRY: 1-2 tbsp cold water to get consistency','BLUEBERRY LAYER: 150g fresh or frozen blueberries','BLUEBERRY LAYER: 2 tbsp Pure Via caster or stevia','BLUEBERRY LAYER: 3/4 tsp agar agar powder OR 1 tsp gelatine powder','FRANGIPANE: 150g ground almonds','FRANGIPANE: 80g softened butter','FRANGIPANE: 3 tbsp Pure Via caster','FRANGIPANE: 2 large eggs','FRANGIPANE: 1 tsp almond extract','ICING: 4 tbsp Pure Via powdered','ICING: 1-2 tsp cold water to drizzle consistency'],
+   steps:['Preheat oven to 170C. Grease a 20cm loose-bottomed tart tin','PASTRY: Mix ground almonds Pure Via and salt. Add melted butter mix. Add cold water 1 tsp at a time until just holds together','Press pastry into base and up sides with fingers - no rolling. Prick base with fork','Blind bake 10-12 mins until lightly golden. Cool slightly','BLUEBERRY: Cook blueberries and sweetener in pan 5-8 mins stirring until jammy','AGAR: Whisk agar into hot mixture simmer 2 mins stirring. OR GELATINE: dissolve in 1 tbsp cold water stir into hot blueberry mix','Pour blueberry layer over pastry spread evenly. Fridge 15 mins to set','FRANGIPANE: Beat butter and Pure Via until pale. Beat in eggs one at a time','Fold in ground almonds and almond extract - will be thick','Spoon frangipane carefully over set blueberry layer spread to edges','Bake 25-30 mins until golden and set. Cool completely in tin','ICING: Mix Pure Via powdered with water a few drops at a time to thick drizzle. Drizzle over cooled tart','Slice into 8. Fridge up to 4 days','TIP: Frozen blueberries work just as well as fresh and are cheaper']},
+  {id:10,name:'Keto Ferrero Rocher',carbs:2,protein:3,fat:14,time:'60 mins + chilling (makes 12)',tags:['sweet treat','chocolate','snack','batch make','freezer friendly'],
+   ingredients:['FILLING: 150g hazelnuts','FILLING: 2 tbsp unsweetened cocoa powder','FILLING: 3 tbsp Pure Via powdered','FILLING: 1 tbsp coconut oil melted','FILLING: Pinch of salt','FILLING: 12 whole roasted hazelnuts one per ball','WAFER OPT 1 (almond - best): 80g ground almonds + 1 egg white + 1 tsp butter + pinch salt','WAFER OPT 2 (coconut - crispiest): 40g coconut flour + 1 egg white + 1 tsp butter + 1 tbsp water + pinch salt','WAFER OPT 3 (egg white - lightest): 2 egg whites + 1 tbsp Pure Via powdered + pinch salt','CHOCOLATE: 150g Lindt 85% or 90% dark chocolate - NOT maltitol sweetened','COATING: 80g hazelnuts roughly chopped and toasted'],
+   steps:['FILLING: Blitz 150g hazelnuts in Ninja in short pulses to smooth butter 60-90 secs','Mix hazelnut butter cocoa Pure Via powdered coconut oil and salt until smooth','Chill 20 mins until firm enough to handle','Roll into 12 balls with a whole hazelnut pressed into centre of each. Freeze 15 mins','WAFER OPT 1 (ALMOND): Mix ground almonds egg white butter and salt to paste. Spread paper thin on parchment. Bake 160C 8-10 mins until golden crisp. Cool break into shards','WAFER OPT 2 (COCONUT FLOUR): Mix all ingredients to thin batter. Spread paper thin. Bake 160C 10-12 mins until crisp - snaps like a real wafer','WAFER OPT 3 (EGG WHITE): Whisk whites to soft peaks fold in Pure Via and salt. Spread thin. Bake 120C 25-30 mins low and slow until completely dry and crisp','ASSEMBLY: Press wafer shards around frozen balls pressing gently. Freeze 10 more mins','Melt chocolate in bain marie or microwave 20 sec bursts stirring each time','Dip each wafer ball in chocolate let excess drip off on fork','Immediately roll in chopped hazelnuts before chocolate sets','Chill 20-30 mins until fully set. Fridge 1 week freeze 1 month','IMPORTANT: Use Lindt 85%+ dark chocolate not Sainsburys no added sugar - that uses maltitol which can spike blood sugar']},
+  {id:11,name:'Keto Raffaello',carbs:2,protein:3,fat:12,time:'60 mins + chilling (makes 12)',tags:['sweet treat','coconut','snack','batch make','freezer friendly'],
+   ingredients:['FILLING: 100g coconut cream chilled overnight','FILLING: 50g full fat cream cheese','FILLING: 2 tbsp Pure Via powdered','FILLING: 3 tbsp desiccated coconut no added sugar','FILLING: 1 drop coconut or vanilla extract','FILLING: 12 whole blanched almonds one per ball','WAFER: 2 egg whites + 1 tbsp Pure Via powdered + pinch salt','KETO WHITE CHOC: 3 tbsp cocoa butter melted + 2 tbsp Pure Via powdered + 2 tbsp coconut cream + pinch salt','OUTER COATING: 80g desiccated coconut no added sugar'],
+   steps:['FILLING: Scoop thick part of chilled coconut cream discard watery liquid at bottom','Beat coconut cream cream cheese Pure Via and extract together until thick and creamy','Fold in desiccated coconut. Chill 20 mins if too soft to roll','Roll into 12 balls with a whole almond pressed into centre. Freeze 20 mins','WAFER: Whisk egg whites to soft peaks fold in Pure Via and salt gently','Spread very thin on parchment. Bake 120C 25-30 mins until completely dry and crisp - very pale do not brown','Cool completely break into shards','ASSEMBLY: Press wafer shards all around frozen balls pressing to stick. Freeze 10 mins','KETO WHITE CHOC: Melt cocoa butter gently whisk in Pure Via coconut cream and salt until smooth. Cool slightly','Dip each wafer ball in white chocolate let excess drip off','Immediately roll in desiccated coconut while coating still wet','Chill 20-30 mins until set. Fridge 1 week freeze 1 month','TIP: Make wafers same session as Ferrero Rocher - one egg white batch covers both']},
+  {id:12,name:'Keto sponge fingers (almond flour)',carbs:1,protein:3,fat:5,time:'25 mins (makes 16-18)',tags:['baking','tiramisu','sponge','almond'],
+   ingredients:['100g ground almonds','2 large eggs separated','3 tbsp Pure Via caster','1/2 tsp vanilla extract','1/4 tsp baking powder','Pinch of salt','Pure Via powdered for dusting'],
+   steps:['Preheat oven to 180C. Line tray with parchment','Whisk egg whites with salt to stiff peaks','Beat egg yolks with Pure Via caster and vanilla until pale and thickened about 2 mins','Fold ground almonds and baking powder into yolk mixture','Fold egg whites in two batches - be gentle keep the air in','Pipe or spoon into 8cm finger shapes on parchment','Dust with Pure Via powdered','Bake 10-12 mins until lightly golden just firm - do not overbake or too dry to soak','Cool completely. Soak 3-4 seconds per side in coffee when making tiramisu','Store airtight up to 3 days or freeze 1 month']},
+  {id:13,name:'Keto sponge fingers (egg white - light)',carbs:1,protein:4,fat:1,time:'35 mins (makes 16-18)',tags:['baking','tiramisu','sponge','light'],
+   ingredients:['4 large eggs separated','4 tbsp Pure Via caster','2 tbsp ground almonds','1 tbsp coconut flour','1/2 tsp vanilla extract','1/4 tsp cream of tartar','Pinch of salt','Pure Via powdered for dusting'],
+   steps:['Preheat oven to 170C. Line two trays with parchment','Whisk egg whites with cream of tartar and salt until foamy then gradually add 2 tbsp Pure Via to stiff glossy peaks','Beat egg yolks with remaining 2 tbsp Pure Via and vanilla until very pale and ribbon-like - about 3 mins','Sift ground almonds and coconut flour over yolks fold gently','Add one third of egg whites to loosen then remaining in two batches fold very gently - this is the light texture','Pipe into 8-9cm fingers','Dust generously with Pure Via powdered - helps form crisp exterior','Bake 14-16 mins until pale golden lightly crisp outside','Turn oven off door slightly ajar 5 mins - helps dry without collapsing','Cool completely. Soak just 1-2 seconds per side when using - very delicate','Best used fresh but store loosely covered up to 2 days']},
+  {id:14,name:'Keto tiramisu',carbs:5,protein:8,fat:22,time:'30 mins + 4hrs chilling (serves 8)',tags:['dessert','italian','batch make','coffee','make ahead'],
+   ingredients:['1 batch keto sponge fingers - almond (denser soaks better) or egg white (lighter more authentic)','COFFEE SOAK: 300ml strong espresso or very strong instant coffee cooled completely','COFFEE SOAK: 1 tsp vanilla extract','MASCARPONE CREAM: 500g mascarpone','MASCARPONE CREAM: 4 large eggs separated','MASCARPONE CREAM: 5 tbsp Pure Via caster','MASCARPONE CREAM: 200ml double cream','MASCARPONE CREAM: 1 tsp vanilla','TOPPING: 3 tbsp unsweetened cocoa powder for dusting'],
+   steps:['Make sponge fingers first cool completely before starting','Mix cooled coffee with vanilla in shallow dish - must be completely cold or fingers collapse','MASCARPONE CREAM: Beat egg yolks with 3 tbsp Pure Via until pale and thick','Add mascarpone beat until smooth - do not overbeat','Whisk double cream to soft peaks in separate bowl','Whisk egg whites with remaining 2 tbsp Pure Via to stiff peaks','Fold cream into mascarpone gently','Fold egg whites into mascarpone in two batches - keeps it light and mousse-like','ASSEMBLY: Dip almond fingers 3-4 secs per side. Dip egg white fingers 1-2 secs only','Lay soaked fingers in single layer in 20x30cm dish or similar','Spread half the mascarpone cream over fingers','Add second layer of soaked fingers','Spread remaining cream over top smooth with spatula','Cover and fridge minimum 4 hours - overnight is better flavours develop','Dust with cocoa through sieve just before serving','Slice into 8 with sharp knife wiped clean between cuts. Fridge up to 3 days - better on day 2']},
+  {id:15,name:'Keto savoury Dutch baby - toad in the hole (air fryer)',carbs:3,protein:12,fat:14,time:'20 mins (1-2 portions)',tags:['savoury','air fryer','quick','sausages','toad in the hole'],
+   ingredients:['3 large eggs','2 tbsp ground almonds','3 tbsp unsweetened almond milk','1/2 tsp garlic powder','1/2 tsp dried thyme','1/2 tsp dried rosemary','1/4 tsp black pepper','1/4 tsp salt','1 tbsp olive oil for the tin','Optional: pinch of parmesan over top before baking'],
+   steps:['Preheat air fryer to 200C for at least 5 mins - must be properly hot before anything goes in','MAKE BATTER FIRST: Whisk eggs very well until frothy and pale - about 1 full minute. This is what creates the puff','Add almond milk ground almonds garlic powder thyme rosemary salt and pepper. Whisk smooth','Leave batter to rest while air fryer heats','Pour olive oil into small disposable tin tip to coat base and slightly up sides','Place tin in air fryer 200C for 4-5 mins until oil shimmering and just smoking - this step is non negotiable cold oil means no puff','QUICKLY pull basket out pour batter immediately into hot tin - should sizzle as it hits oil','Slide back in immediately - do not hang around or you lose the heat','Cook at 200C 12-14 mins - DO NOT open air fryer for first 10 mins or it will collapse','Ready when edges are deep golden and crispy and it has puffed up dramatically','Add pre-cooked sausages on top for last 2 mins just to warm through','Serve immediately straight from tin - will deflate after a few mins which is normal','TIP: More whisking of eggs = more puff. Add one more egg next time if not rising enough','TIP: Almond milk is better for your liver than cream or regular milk']},
+  {id:16,name:'Keto Big Mac sauce',carbs:1,protein:0,fat:10,time:'5 mins',tags:['sauce','burger'],
+   ingredients:['4 tbsp full fat mayonnaise','1 tsp American yellow mustard','1 tbsp dill pickle relish no added sugar','1 tsp white wine vinegar','half tsp onion powder','quarter tsp garlic powder','quarter tsp paprika','Pinch of Pure Via caster','Salt to taste'],
+   steps:['Mix all ingredients together','Rest in fridge 10 mins - flavours develop','Keeps 5 days in fridge','TIP: The relish and mustard combo is the secret']},
+  {id:17,name:'Keto Big Tasty sauce',carbs:1,protein:0,fat:10,time:'5 mins',tags:['sauce','burger'],
+   ingredients:['4 tbsp full fat mayonnaise','1 tsp Dijon mustard','1 tsp tomato paste','1 tsp smoked paprika','quarter tsp garlic powder','quarter tsp onion powder','1 tsp white wine vinegar','Salt and pepper'],
+   steps:['Mix all ingredients until smooth','Rest 10 mins in fridge before using','Keeps 5 days','TIP: Smoked paprika is what makes this taste like the Big Tasty']},
+  {id:18,name:'Keto Big Arch sauce',carbs:1,protein:0,fat:10,time:'5 mins',tags:['sauce','burger','smoky'],
+   ingredients:['4 tbsp full fat mayonnaise','1 tsp tomato paste','1 tsp smoked paprika','half tsp garlic powder','half tsp onion powder','half tsp apple cider vinegar','half tsp Worcestershire sauce','Pinch of Pure Via caster','Salt and pepper','Optional 2-3 drops liquid smoke'],
+   steps:['Mix all ingredients until smooth','Liquid smoke if using - just 2-3 drops transforms it','Rest 10 mins in fridge','Keeps 5 days','TIP: Pure Via caster gives BBQ sweetness without the carbs']},
+  {id:19,name:'Keto smash burger patties (air fryer)',carbs:0,protein:25,fat:20,time:'15 mins makes 4',tags:['burger','air fryer','beef','high protein'],
+   ingredients:['400g beef mince 20% fat','half tsp garlic powder','half tsp onion powder','half tsp smoked paprika','1 tsp Worcestershire sauce','Salt and black pepper be generous','4 slices cheddar for melting'],
+   steps:['Mix mince with all seasonings - do not overmix or patties go tough','Divide into 4 balls about 100g each','Preheat air fryer to 200C for 3 mins','Place balls in basket with space between each','Press each ball down firmly into thin flat patty using back of spatula - thinner means crispier edges','Air fry 200C 6-7 mins - do not flip let base crisp up','Add cheese slice on top last 1 min to melt','Rest 1 min before assembling','TIP: 20% fat mince essential - lean mince dries out completely','TIP: Season very generously - mince needs more than you think']},
+  {id:20,name:'Keto Big Mac style burger full assembly',carbs:5,protein:40,fat:45,time:'35 mins makes 4',tags:['burger','air fryer','keto mcdonalds'],
+   ingredients:['1 batch cottage cheese buns made first','400g beef mince 20% fat for patties OR 4 pre-made beef burger patties','4 slices cheddar or American style cheese','4 rashers bacon','Iceberg lettuce leaves','1 tomato sliced thin','Dill pickles sliced check no added sugar','Half onion sliced raw or caramelised','Choice of sauce Big Mac Big Tasty or Big Arch all in cookbook'],
+   steps:['MAKE BUNS FIRST and cool completely - must be fully cool before slicing or they fall apart','BACON: Air fry 200C 6-8 mins until crispy','HOMEMADE PATTIES: Follow smash burger patty recipe in cookbook','PRE-MADE PATTIES: Air fry 200C 8-10 mins flip halfway. Cheese on top last 1 min','CARAMELISED ONION optional: Fry sliced onion in olive oil very low heat 15-20 mins until golden','Slice bun in half carefully','Spread sauce generously on both bun halves','Bottom bun: lettuce then tomato','Cheesy patty on top','Bacon on patty','Gherkins','Onion','Top bun with sauce on inside','Eat immediately - cottage cheese buns soften quickly','TIP: Make all 3 sauces and do a taste test - all different and all brilliant']},
+  {id:21,name:'Cauliflower mash croquettes (air fryer)',carbs:2,protein:4,fat:6,time:'30 mins + 30 mins chilling (makes 16 mini)',tags:['side dish','air fryer','burger side','vegetarian','batch make'],
+   ingredients:['400g cauliflower florets (or use leftover cauliflower mash)','100g full fat cream cheese','1 egg yolk','2 tbsp ground almonds for binding','50g parmesan finely grated','Half tsp garlic powder','Half tsp onion powder','Salt and black pepper','COATING: 3 tbsp ground almonds','COATING: 2 tbsp finely grated parmesan','COATING: Optional 30g crushed pork scratchings mixed in for extra crunch','1 egg beaten for egg wash'],
+   steps:['If making fresh mash: boil cauliflower until very tender 12-15 mins. Drain and leave in colander to steam dry at least 5 mins - this is critical or croquettes will be too wet to hold together','Mash or blend cauliflower with cream cheese garlic powder onion powder salt and pepper until smooth','Stir in egg yolk and 2 tbsp ground almonds - mix well. Taste and season generously','The mix should be thick enough to hold a shape. If too wet add a little more ground almond','Cover and refrigerate 30 mins minimum - chilling firms it up and makes it much easier to shape','COATING: Mix ground almonds parmesan and crushed pork scratchings if using on a plate','Beat egg in a shallow bowl for egg wash','Preheat air fryer to 190C','Take chilled mix and roll into small logs about 4cm long and 2cm wide - cocktail sausage size. Keep them small for best crispiness and lower carbs per piece','Dip each croquette in beaten egg then roll in coating mixture pressing gently to stick all over','Place in air fryer basket in single layer - do not overcrowd or they steam instead of crisp','Air fry 190C for 12-14 mins until deep golden and crispy. Shake basket gently halfway','Rest 2 mins before serving - they firm up slightly as they cool','Serve alongside your keto burgers with any of the three burger sauces for dipping','TIP: Leftover cottage pie cauliflower mash works perfectly - already seasoned and saves time','TIP: Crushed pork scratchings in the coating give the most authentic breadcrumb crunch - zero carbs','TIP: Make a big batch and freeze before air frying - cook from frozen at 190C for 16-18 mins']},
+  {id:22,name:'Keto ketchup (quick)',carbs:2,protein:0,fat:0,time:'5 mins makes 8 portions',tags:['sauce','condiment','ketchup','quick'],
+   ingredients:['4 tbsp tomato paste','2 tbsp apple cider vinegar','2 tbsp water','1 tbsp Pure Via caster','Quarter tsp onion powder','Quarter tsp garlic powder','Pinch ground cloves - do not skip this is the secret','Pinch allspice','Pinch cinnamon','Salt to taste'],
+   steps:['Mix all ingredients together until completely smooth','Taste - more Pure Via for sweetness more vinegar for tang','Add water gradually to get your preferred consistency','Keeps up to 2 weeks in fridge in sealed jar','TIP: Cloves allspice and cinnamon are what make this taste like real ketchup not just tomato sauce','TIP: Pure Via caster dissolves well cold - give it a good stir']},
+  {id:23,name:'Keto ketchup (cooked - better flavour)',carbs:2,protein:0,fat:0,time:'25 mins makes 12 portions',tags:['sauce','condiment','ketchup','batch make'],
+   ingredients:['1 tin 400g chopped tomatoes','2 tbsp tomato paste','3 tbsp apple cider vinegar','2 tbsp Pure Via caster','1 small onion very finely diced','2 garlic cloves minced','Quarter tsp ground cloves','Quarter tsp allspice','Quarter tsp cinnamon','Quarter tsp smoked paprika','Salt and black pepper','Pinch cayenne optional'],
+   steps:['Fry onion in 1 tsp olive oil 5 mins until very soft','Add garlic cook 1 min','Add chopped tomatoes tomato paste and all spices stir well','Simmer uncovered low heat 15-20 mins until thickened','Blend completely smooth using Ninja or hand blender','Add apple cider vinegar and Pure Via stir well','Taste and adjust sweetness and tang','Cool then pour into sealed jar. Fridge 3 weeks or freeze in portions','TIP: Cooked version has much deeper richer flavour - worth the extra 20 mins','TIP: Blend really thoroughly for proper ketchup texture']},
+  {id:24,name:'Keto BBQ sauce',carbs:3,protein:0,fat:0,time:'20 mins makes 10 portions',tags:['sauce','condiment','bbq','smoky','batch make'],
+   ingredients:['4 tbsp tomato paste','2 tbsp apple cider vinegar','2 tbsp Pure Via brown sugar alternative - gives authentic BBQ depth','1 tbsp Worcestershire sauce','1 tsp smoked paprika','Half tsp garlic powder','Half tsp onion powder','Quarter tsp mustard powder','Pinch cayenne pepper','Pinch cinnamon','Salt and black pepper','3-4 tbsp water to get consistency','Optional 3-4 drops liquid smoke - makes it incredible'],
+   steps:['Put all ingredients except water into small saucepan','Add water gradually until pourable sauce consistency','Bring to gentle simmer stirring constantly','Simmer 10-12 mins until slightly thickened and glossy','Taste - more Pure Via brown for sweetness more vinegar for tang more cayenne for heat','Cool before using - thickens more as it cools','Sealed jar in fridge up to 3 weeks','TIP: Pure Via brown sugar alternative is perfect here - gives genuine BBQ caramel depth','TIP: Liquid smoke transforms this completely - just 3-4 drops','TIP: Doubles as a marinade - brush on chicken or ribs before air frying','TIP: Goes brilliantly with cauliflower croquettes as a dipping sauce']},
+  {id:25,name:'Homemade mayonnaise (Ninja method)',carbs:0,protein:1,fat:22,time:'5 mins makes 300ml',tags:['sauce','condiment','mayo','quick','base recipe'],
+   ingredients:['2 large egg yolks at room temperature - cold eggs can cause splitting','125ml light olive oil','125ml sunflower or vegetable oil - combined in one jug ready to pour','1 tsp Dijon mustard','1 tbsp lemon juice or white wine vinegar','Half tsp salt','Pinch of Pure Via caster optional - balances the flavour','Optional pinch of white pepper'],
+   steps:['Important: eggs must be room temperature - take out of fridge 30 mins before or sit in warm water 5 mins','Put egg yolks mustard lemon juice salt and Pure Via into Ninja cup','Blend on low for 10-15 seconds until combined and slightly pale','Now the key step: with blender running on low pour the combined oils in an extremely thin slow steady stream - like a thread of oil not a pour. This is what creates the emulsion','Keep pouring slowly - the whole 250ml should take about 60-90 seconds to add','As you add oil the mixture will thicken dramatically and turn pale yellow - this means it is working','Once all oil is in blend 5 more seconds until thick and glossy','Taste and adjust - more lemon for tang more salt to season','Transfer to a sealed jar. Fridge up to 1 week','TIP: If it splits (goes greasy and separated) do not throw it away - start fresh with 1 egg yolk in clean cup and slowly pour the split mixture into it as if it were oil. It will re-emulsify','TIP: The Ninja makes this almost foolproof - the key is just the slow oil pour','TIP: Half olive half sunflower gives best balance - pure olive oil can taste bitter in mayo']},
+  {id:26,name:'McChicken sandwich sauce (keto)',carbs:1,protein:0,fat:10,time:'5 mins makes 4 portions',tags:['sauce','condiment','chicken burger','mcdonalds'],
+   ingredients:['4 tbsp homemade mayo or full fat shop bought','1 tsp white wine vinegar','Half tsp Pure Via caster - that subtle sweetness is the key','Quarter tsp onion powder','Quarter tsp garlic powder','Pinch of white pepper - white not black for authenticity','Pinch of celery salt if available or regular salt','Half tsp lemon juice','Optional tiny pinch of paprika'],
+   steps:['Mix all ingredients together until completely smooth','Taste - the balance of creamy slightly sweet and very subtly tangy is what you are going for','Add more Pure Via if not sweet enough more vinegar if not tangy enough','Rest in fridge 10 mins - flavours come together as it sits','Spread generously on both sides of bun','Keeps in fridge up to 5 days','TIP: White pepper instead of black is important - gives a cleaner more authentic flavour','TIP: The slight sweetness from Pure Via is the secret - do not skip it, that is what makes it taste like the real McChicken sauce','TIP: This also works brilliantly as a dipping sauce for your cauliflower croquettes']},
+  {id:27,name:'Keto master coating mix (for nuggets fish fingers and croquettes)',carbs:1,protein:4,fat:8,time:'5 mins makes enough for 4 portions',tags:['coating','breadcrumb','base recipe','keto'],
+   ingredients:['100g ground almonds','50g parmesan finely grated','30g crushed pork scratchings - blitz in Ninja 5 seconds','Half tsp salt','Half tsp black pepper'],
+   steps:['Blitz pork scratchings in Ninja 5 seconds to a rough crumb - not too fine you want some texture','Mix ground almonds parmesan crushed pork scratchings salt and pepper together in a shallow bowl','This is your base coating - use as is for fish fingers or add spices for KFC nuggets (see recipes)','Make fresh each session - takes 5 mins and stays crispier than pre-mixing','TIP: The pork scratchings are the game changer - they give a crunch that ground almonds alone cannot achieve','TIP: Keep ingredients separate in the cupboard and mix to order for best results','TIP: One batch covers approximately 400g chicken nuggets OR 400g fish fingers OR 16 croquettes']},
+  {id:28,name:'Keto KFC style chicken nuggets (air fryer)',carbs:2,protein:28,fat:14,time:'25 mins makes 4 portions',tags:['chicken','nuggets','kfc','air fryer','batch make','freezer friendly'],
+   ingredients:['400g chicken breast cut into nugget sized pieces','BUTTERMILK MARINADE: 100ml full fat Greek yogurt or sour cream','BUTTERMILK MARINADE: 1 tbsp apple cider vinegar','BUTTERMILK MARINADE: Half tsp salt','KFC SPICE MIX: 1 batch master coating mix','KFC SPICE MIX: 1 tsp smoked paprika','KFC SPICE MIX: 1 tsp garlic powder','KFC SPICE MIX: 1 tsp onion powder','KFC SPICE MIX: Half tsp dried thyme','KFC SPICE MIX: Half tsp dried oregano','KFC SPICE MIX: Half tsp celery salt or regular salt','KFC SPICE MIX: Quarter tsp white pepper','KFC SPICE MIX: Quarter tsp cayenne pepper - adjust to taste','KFC SPICE MIX: Quarter tsp ground ginger','Light olive oil spray'],
+   steps:['Cut chicken breast into nugget sized chunks - roughly 3-4cm. Try to keep them similar size so they cook evenly','MARINADE: Mix Greek yogurt apple cider vinegar and salt together. Add chicken pieces and coat well','Marinate minimum 30 mins in fridge - overnight is even better. The yogurt tenderises the chicken like buttermilk would','Mix master coating with all KFC spices together in shallow bowl','Preheat air fryer to 190C','Remove chicken from marinade letting excess drip off - do not shake off all the yogurt as it helps coating stick','Press each piece firmly into spiced coating turning to coat all sides - press the coating on so it sticks well','Place in air fryer basket in single layer - do not overcrowd. Cook in batches if needed','Spray lightly with olive oil spray - helps crisping','Air fry 190C for 12-14 mins shaking basket halfway until golden and cooked through - internal temp should be 75C','Rest 2 mins before eating - coating firms up slightly','TIP: Do not skip the marinade - it is what makes chicken breast stay juicy not dry in the air fryer','TIP: Serve with McChicken sauce Big Mac sauce or keto BBQ sauce all in your cookbook','TIP: Freeze coated uncooked nuggets on a tray then transfer to a bag. Cook from frozen 190C for 16-18 mins - perfect batch cook','TIP: The 11 herbs and spices in real KFC are a trade secret but this combination is very close']},
+  {id:29,name:'Keto fish fingers (air fryer)',carbs:1,protein:20,fat:10,time:'20 mins makes 4 portions',tags:['fish','fish fingers','air fryer','batch make','freezer friendly','omega-3'],
+   ingredients:['400g white fish fillets - cod haddock pollock or any firm white fish. Defrosted if frozen and patted very dry','COATING: 1 batch master coating mix','COATING: 1 tsp lemon zest optional but lovely','COATING: Half tsp dried dill or parsley','EGG WASH: 2 large eggs beaten','Salt and white pepper','Light olive oil spray'],
+   steps:['Pat fish fillets very dry with kitchen paper - moisture is the enemy of crispy coating. Press firmly to remove all excess water','Cut into fish finger shapes - roughly 8-10cm long 2-3cm wide. Season lightly with salt and white pepper','Mix master coating with lemon zest and dill if using in shallow bowl','Beat eggs in separate shallow bowl','Preheat air fryer to 190C','Dip each fish finger in beaten egg letting excess drip off','Press firmly into coating on all sides - make sure fully coated with no bare patches','Place in air fryer basket in single layer - cook in batches if needed','Spray lightly with olive oil spray','Air fry 190C for 10-12 mins - fish cooks faster than chicken so watch carefully. Shake basket gently halfway','Ready when coating is golden and fish flakes easily when pressed','Serve immediately with keto ketchup tartare sauce or McChicken sauce','TIP: Pollock is the cheapest white fish and works brilliantly - look in the frozen fish section','TIP: Patting the fish completely dry is the most important step - wet fish makes soggy coating','TIP: Freeze coated uncooked fish fingers on a tray then bag them. Cook from frozen 190C for 14-15 mins','TIP: These are excellent for your liver - white fish is very low in saturated fat and high in protein','TIP: Add a squeeze of fresh lemon when serving - cuts through the richness of the coating beautifully']},
+  {id:30,name:'Keto McChicken sandwich burger',carbs:4,protein:35,fat:18,time:'30 mins makes 4',tags:['chicken','burger','mcdonalds','air fryer','cottage cheese buns'],
+   ingredients:['400g chicken breast - cold from fridge not frozen','SEASONING: Half tsp salt','SEASONING: Quarter tsp white pepper','SEASONING: Quarter tsp garlic powder','SEASONING: Quarter tsp onion powder','EGG WASH: 2 large eggs beaten','PLAIN COATING: 1 batch master coating mix WITHOUT the KFC spices - just ground almonds parmesan and pork scratchings','Light olive oil spray','TO SERVE: 1 batch cottage cheese buns','TO SERVE: McChicken sandwich sauce (recipe in cookbook)','TO SERVE: Shredded iceberg lettuce'],
+   steps:['Cut cold chicken breast into rough chunks - cold chicken minces much better than room temperature','Pulse in Ninja in short 1-2 second bursts - about 6-8 pulses. You want a coarse mince not a paste. Stop and check between each pulse','Season mince with salt white pepper garlic powder and onion powder. Mix gently with a fork','Divide into 4 equal portions - about 100g each','Place each portion between two sheets of baking parchment and press flat into a round patty about 1cm thick and roughly the same diameter as your bun - use a round cutter or jar lid as a guide if you have one','Freeze patties flat for 15 mins - this firms them up so they hold their shape when coating','Preheat air fryer to 190C','Set up coating station: beaten egg in one shallow bowl master coating mix in another','Take chilled patty dip in egg wash coating both sides letting excess drip off','Press firmly into coating on both sides and edges - press coating on so it sticks well','Spray air fryer basket with light olive oil','Place coated patties in basket in single layer','Spray tops lightly with olive oil spray','Air fry 190C for 12-14 mins flipping carefully halfway - they are more delicate than nuggets so use a spatula','Ready when golden and coating is crispy. Check chicken is cooked through - no pink in middle','Rest 2 mins before assembling','ASSEMBLY: Slice cottage cheese bun in half','Spread McChicken sauce generously on both halves','Add shredded iceberg lettuce on bottom bun','Place crispy chicken patty on top','Top bun with extra sauce on the inside','Eat immediately','TIP: Keeping chicken cold before mincing is crucial - warm chicken turns to paste in the blender not mince','TIP: Short pulses are the secret - check after every pulse to get the right coarse texture','TIP: Freezing the patties before coating stops them falling apart when you handle them','TIP: Make extra patties and freeze uncoated between parchment sheets - coat and cook from fridge defrosted','TIP: The plain coating is more authentic to the original McChicken than the KFC spiced version']},
+  {id:31,name:'Keto cucumber shake salad with spiced mince',carbs:4,protein:32,fat:24,time:'20 mins makes 1 portion',tags:['lunch','quick','salad','beef','no cook dressing'],
+   ingredients:['MINCE: 150g beef mince 20% fat','MINCE: Quarter tsp garlic powder','MINCE: Quarter tsp cumin','MINCE: Quarter tsp smoked paprika','MINCE: Salt and black pepper','CUCUMBER: Half a cucumber sliced into half moons or chunks','CUCUMBER: Pinch of salt to season','TOPPINGS: Small handful cherry tomatoes halved','TOPPINGS: Quarter red onion thinly sliced','TOPPINGS: Optional handful of shredded iceberg lettuce','DRESSING: 2 tbsp full fat mayonnaise','DRESSING: 2 tbsp full fat sour cream','DRESSING: Quarter tsp garlic powder','DRESSING: Quarter tsp smoked paprika','DRESSING: Squeeze of lemon juice or splash of apple cider vinegar','DRESSING: Salt and pepper to taste','DRESSING: Optional tiny pinch of Pure Via caster to balance'],
+   steps:['MINCE: Cook beef mince in a pan or air fryer over high heat breaking up as it cooks','Season with garlic powder cumin smoked paprika salt and pepper','Cook until browned and slightly crispy - a little colour on the mince adds flavour','Set aside to cool slightly - you want it warm not steaming hot when you add to the salad','DRESSING: Mix mayo sour cream garlic powder smoked paprika lemon juice and salt together until smooth','Taste - should be creamy tangy and slightly smoky. Add Pure Via if it needs balancing','ASSEMBLE: Put cucumber chunks into a large container or tub with a lid','Add cherry tomatoes red onion and lettuce if using','Add warm mince on top','Pour dressing over everything','PUT THE LID ON and shake the container a few times to coat everything in the dressing - this is the viral part','Eat straight from the container or tip into a bowl','TIP: The shake coating everything in dressing is what makes this so good - do not just stir it','TIP: Warm mince slightly wilts the cucumber and melds with the dressing - do not use cold mince','TIP: Sour cream and mayo together work better than either alone - sour cream adds sharpness mayo adds richness','TIP: This is a perfect night shift meal - quick to make filling and completely keto','TIP: Add a spoonful of your keto ketchup or BBQ sauce into the dressing for extra depth']},
+  {id:32,name:'Keto blackcurrant jelly sweets',carbs:1,protein:0,fat:0,time:'15 mins + 2hrs setting (makes 20-25 squares)',tags:['sweet treat','snack','jelly','sugar free','night shift'],
+   ingredients:['250ml sugar free blackcurrant squash - Robinsons no added sugar or similar, made up slightly stronger than normal drinking strength','1 and half tsp agar agar powder - this gives firm not wobbly texture','2 tbsp Pure Via caster - adjust to taste','Optional: tiny drop of purple or red food colouring for deeper colour - the squash usually gives enough colour naturally'],
+   steps:['Line a small shallow tin or dish with cling film - a small tupperware or baking tin works perfectly. Smaller and deeper gives thicker squares, wider and shallower gives thinner ones','Make up blackcurrant squash slightly stronger than you would for drinking - more concentrated flavour comes through better in sweets','Pour squash into a small saucepan and add Pure Via caster. Stir over low heat until sweetener dissolves - about 1 min','Taste the liquid now - it should be quite sweet and strongly flavoured. Add more Pure Via if needed. You want it slightly sweeter than you think because setting dulls the sweetness slightly','Sprinkle agar agar powder over the surface of the liquid and whisk immediately - do not let it clump','Bring to a gentle simmer whisking constantly for 2 full minutes - this activates the agar agar properly. Do not skip the full 2 minutes or it may not set firmly','Remove from heat immediately and pour into your lined tin in an even layer','Leave to cool at room temperature 10 mins then transfer to fridge','Chill minimum 2 hours until completely firm - it will feel solid and not sticky when ready','Lift out using the cling film edges and place on a chopping board','Cut into small squares with a sharp knife - wipe knife clean between cuts for neat edges','Optional: roll squares in a tiny bit of Pure Via powdered for that classic jelly baby sugar coating look','Store in fridge in an airtight container between layers of parchment up to 1 week','TIP: The 1.5 tsp agar agar ratio is key for firm not chewy - do not reduce it','TIP: Stronger squash concentration = more flavour. Weak squash makes bland sweets','TIP: If squares are too soft next time add quarter tsp more agar agar. If too hard and rubbery reduce by quarter tsp','TIP: Rolling in Pure Via powdered at the end gives that classic jelly sweet coating and reduces stickiness','TIP: Perfect night shift sweet treat - make a batch on your day off and keep in the fridge all week','TIP: Try with other sugar free squash flavours - raspberry orange or lemon all work identically']},
+  {id:33,name:'Keto deep fried battered fish',carbs:3,protein:28,fat:18,time:'25 mins serves 2',tags:['fish','deep fry','battered','chip shop','keto'],
+   ingredients:['2 large white fish fillets - cod haddock or pollock patted completely dry','BATTER: 80g fine almond flour - blitz ground almonds in Ninja first','BATTER: 1 large egg','BATTER: 100ml sparkling water or soda water - ice cold from fridge','BATTER: 1 tsp baking powder','BATTER: Half tsp salt','BATTER: Quarter tsp white pepper','BATTER: Quarter tsp garlic powder','Oil for deep frying - sunflower or vegetable oil fills pan to about 8-10cm depth'],
+   steps:['Pat fish fillets completely dry with kitchen paper - press firmly. Moisture is the enemy of crispy batter. Do this twice','Season fish lightly with salt and white pepper','BATTER: Mix almond flour baking powder salt pepper and garlic powder together in a bowl','Add egg and mix to a paste','Add ice cold sparkling water gradually whisking until you get a smooth batter the consistency of double cream - not too thick not too runny. The colder the water the crispier the batter','Rest batter in fridge 10 mins while oil heats - cold batter hitting hot oil creates the crispiest result','Heat oil in a deep heavy pan to 180C - test with a tiny drop of batter, if it sizzles and floats immediately the oil is ready. Do not rush this step','Dip fish fillet into batter letting excess drip off','Lower carefully into hot oil away from you - do not drop it or oil will splash','Fry 4-5 mins depending on thickness until deep golden all over. Turn once halfway if needed','Remove with slotted spoon and drain on kitchen paper','Rest 1 min before serving','Serve with keto tartare sauce keto ketchup or keto mushy peas if you make them','TIP: Ice cold sparkling water is the single most important thing for crispy light batter - do not use still water','TIP: Do not overcrowd the pan - fry one piece at a time if needed or oil temperature drops and batter goes greasy','TIP: 180C oil is crucial - too cold means greasy soggy batter, too hot means burnt outside raw inside','TIP: Almond flour batter does not go as pale golden as wheat flour - it will be slightly darker golden which is normal','TIP: Works identically with salmon for a richer version']},
+  {id:34,name:'Keto deep fried battered courgette fries',carbs:4,protein:6,fat:16,time:'35 mins serves 2',tags:['vegetable','deep fry','fries','courgette','keto','side dish'],
+   ingredients:['2 medium courgettes cut into thick fry shapes - about 1cm thick 8-10cm long','Salt for drawing out moisture','BATTER: 80g fine almond flour - blitz ground almonds in Ninja first','BATTER: 1 large egg','BATTER: 80ml sparkling water ice cold','BATTER: 1 tsp baking powder','BATTER: Half tsp salt','BATTER: Quarter tsp garlic powder','BATTER: Quarter tsp smoked paprika','Oil for deep frying - sunflower or vegetable oil 8-10cm depth'],
+   steps:['CRITICAL STEP: Cut courgette into fry shapes and sprinkle generously with salt. Leave in colander 20-30 mins - this draws out the water that would otherwise make batter soggy','After 20-30 mins pat completely dry with kitchen paper - press really firmly. You will be surprised how much water comes out','BATTER: Mix almond flour baking powder salt garlic powder and smoked paprika','Add egg mix to paste then add ice cold sparkling water gradually until smooth batter consistency of double cream','Rest batter in fridge 10 mins while oil heats','Heat oil to 180C in deep heavy pan - test with drop of batter, should sizzle and float immediately','Working in small batches dip courgette fries in batter letting excess drip off','Lower carefully into hot oil - do not overcrowd, fry in batches of 4-5 pieces','Fry 3-4 mins until deep golden turning once halfway','Remove with slotted spoon drain on kitchen paper','Season immediately with extra salt while still hot','Serve straight away - courgette fries do not stay crispy as long as potato fries so eat immediately','Serve with keto ketchup BBQ sauce or tartare sauce','TIP: The salt and drain step is non negotiable - skip it and batter will be soggy guaranteed','TIP: Fry in small batches - overcrowding drops oil temperature and everything goes greasy','TIP: Eat immediately - courgette releases steam as it sits which softens the batter over time','TIP: Smoked paprika in the batter gives a subtle warmth that goes brilliantly with the courgette','TIP: Same batter works for deep fried battered fish - make both in the same oil session']},
+  {id:35,name:'Keto hazelnut and blueberry shortbread cookies',carbs:3,protein:5,fat:16,time:'30 mins makes 12',tags:['baking','cookies','sweet treat','shortbread','hazelnut','blueberry'],
+   ingredients:['150g fine almond flour - blitz ground almonds in Ninja first','50g hazelnuts - half blitzed fine in Ninja half roughly chopped for topping','100g cold butter cut into small cubes - must be cold not melted','4 tbsp Pure Via caster','1 tbsp Pure Via powdered for extra sweetness and shortbread texture','1 tsp vanilla extract','Pinch of salt','100g fresh or frozen blueberries - if frozen do not defrost','Optional: pinch of cinnamon'],
+   steps:['Preheat oven to 160C - lower temperature than normal gives that classic shortbread pale golden colour without browning','Blitz half the hazelnuts in Ninja to a fine powder - add to almond flour','Roughly chop remaining hazelnuts into chunky pieces - set aside for topping','Mix fine almond flour hazelnut powder Pure Via caster Pure Via powdered salt and cinnamon if using together in a bowl','Add cold butter cubes and vanilla - rub butter into the flour mixture with your fingertips until it resembles breadcrumbs. Work quickly so butter stays cold','The mixture should just come together when pressed - if too dry add half tsp cold water. If too wet add a little more almond flour','Gently fold in blueberries - be careful not to crush them or the dough goes purple. Fold just 3-4 times','Roll into 12 balls and place on parchment lined baking tray with space between each','Press down gently into thick disc shapes about 1.5cm thick - do not press too thin or edges burn before centre cooks','Press a few chunky hazelnut pieces on top of each cookie','Bake 160C for 14-16 mins until edges are just turning golden - centre will look slightly underdone but firms up as it cools','This is important - do not overbake waiting for centre to look done or they will be too hard','Cool completely on tray - they are very fragile when warm and will fall apart if you move them too soon','Once cool they should have crispy golden edges and a softer buttery centre','Store in airtight container in fridge up to 5 days or freeze up to 1 month','TIP: Cold butter is essential for shortbread texture - melted butter makes cakey cookies not shortbread','TIP: Do not defrost frozen blueberries first - they hold their shape better when folded in frozen and burst beautifully when you eat the cookie','TIP: The double hazelnut method - fine in dough for flavour throughout plus chunky on top for crunch - gives the best of both','TIP: These are perfect night shift treats - make a batch freeze half and pull out as needed','TIP: Try with raspberries instead of blueberries for a different flavour - works identically']},
+  {id:36,name:'Keto creamy mushroom soup (wisdom tooth friendly)',carbs:5,protein:6,fat:20,time:'25 mins serves 2',tags:['soup','comfort food','soft food','quick','batch make'],
+   ingredients:['400g mushrooms any variety - chestnut or closed cup both work well','1 medium onion diced','3 garlic cloves minced','500ml chicken or vegetable stock - low sodium check label','150ml double cream','2 tbsp butter or olive oil','1 tsp dried thyme','Salt and white pepper - white pepper gives cleaner flavour in smooth soups','Optional: small handful of spinach for extra nutrition - blends in completely invisibly','Optional: splash of Worcestershire sauce for depth'],
+   steps:['Melt butter in large pan over medium heat','Add onion and cook gently 5-6 mins until very soft - do not rush this step as soft onion gives a sweeter smoother base','Add garlic cook 1 min','Add mushrooms and thyme - cook 8-10 mins stirring occasionally until mushrooms are completely soft and have released all their moisture. They will reduce down a lot - this is normal','Season generously with salt and white pepper','Add stock and bring to gentle simmer for 5 mins','Add spinach if using and stir until wilted - about 1 min','Remove from heat and add double cream','Blend completely smooth using Ninja or hand blender - blend for a full 60 seconds until completely silky with no lumps at all','Taste and adjust seasoning - may need more salt','Reheat gently if needed - do not boil after adding cream or it can split','Serve warm not hot - important for wisdom tooth recovery','TIP: The longer you cook the mushrooms before adding stock the deeper and richer the flavour','TIP: White pepper instead of black keeps the soup a beautiful pale colour','TIP: This freezes brilliantly - make a big batch and freeze in portions before adding cream. Add cream fresh when reheating','TIP: If too thick add a splash more stock. If too thin simmer uncovered 5 more mins','TIP: Chestnut mushrooms give the deepest flavour but any mushrooms work','TIP: Serve at body temperature for the first 24 hours after tooth extraction - nothing too hot']},
+  {id:37,name:'Keto creamy chicken soup',carbs:4,protein:32,fat:18,time:'30 mins serves 2',tags:['soup','chicken','comfort food','soft food','batch make'],
+   ingredients:['300g chicken breast or thigh - thigh gives more flavour','1 medium onion diced','3 garlic cloves minced','500ml chicken stock low sodium','150ml double cream','2 tbsp butter or olive oil','1 stick celery diced','1 tsp dried thyme','1 tsp dried parsley','Salt and white pepper','Optional: handful of spinach blends in invisibly','Optional: 1 tsp Dijon mustard - gives lovely depth'],
+   steps:['Cut chicken into chunks - does not matter what size as it gets blended','Melt butter in large pan over medium heat','Fry onion and celery gently 6-7 mins until very soft','Add garlic cook 1 min','Add chicken pieces and cook 5-6 mins turning until sealed and white on outside - does not need to be fully cooked through yet','Add thyme parsley and season well with salt and white pepper','Add stock and bring to gentle simmer','Simmer 15 mins until chicken is completely cooked through','Add spinach if using stir until wilted','Remove from heat add cream and Dijon mustard if using','Blend completely smooth using Ninja or hand blender - full 60 seconds until silky','Taste and adjust seasoning','Reheat gently if needed - do not boil after cream is added','Serve warm not hot for wisdom tooth recovery','TIP: Chicken thigh gives much richer deeper flavour than breast in soup - worth using if you have it','TIP: Dijon mustard is the secret ingredient - adds depth without tasting of mustard','TIP: Freeze before adding cream - add cream fresh when reheating for best texture','TIP: This is incredibly filling and high protein - perfect recovery food']},
+  {id:38,name:'Keto creamy tomato soup',carbs:6,protein:4,fat:16,time:'25 mins serves 2',tags:['soup','tomato','comfort food','soft food','vegetarian','batch make'],
+   ingredients:['2 tins 400g each chopped tomatoes','1 medium onion diced','3 garlic cloves minced','200ml chicken or vegetable stock','100ml double cream','2 tbsp butter or olive oil','1 tsp tomato paste for extra depth','1 tsp dried basil','Half tsp smoked paprika','Pinch of Pure Via caster - balances the acidity','Salt and white pepper','Optional: fresh basil if available'],
+   steps:['Melt butter in large pan over medium heat','Fry onion gently 6-7 mins until very soft and slightly golden - this sweetness is important for tomato soup','Add garlic cook 1 min','Add tomato paste stir and cook 2 mins to caramelise','Add chopped tomatoes stock basil smoked paprika Pure Via caster salt and pepper','Bring to simmer and cook uncovered 15 mins stirring occasionally until slightly reduced','Remove from heat and add cream','Blend completely smooth - full 60-90 seconds. Tomato soup needs longer blending than mushroom or chicken','Pass through a sieve if you want it completely silky smooth - optional but makes it like tinned tomato soup texture','Taste and adjust - more Pure Via if too acidic more salt if flat','Reheat gently if needed - do not boil','Serve warm not hot','TIP: The pinch of Pure Via caster is essential - tomatoes are acidic and without a tiny sweetness the soup tastes sharp not rounded','TIP: Caramelising the tomato paste first adds a depth that makes it taste like it has been cooking for hours','TIP: Smoked paprika gives that classic tinned tomato soup flavour you remember from childhood','TIP: This freezes perfectly - make a big batch and freeze in portions','TIP: A swirl of cream on top before serving looks beautiful if eating with guests']},
+  {id:39,name:'SLOW COOKER: Keto cottage pie mince layer',carbs:8,protein:42,fat:28,time:'Low 6-8 hrs or High 3-4 hrs (batch 6)',tags:['dinner','slow cooker','batch cook','freezer friendly','high protein'],
+   ingredients:['750g beef mince 20% fat','2 medium onions diced','1 stick celery finely diced','150g mushrooms roughly chopped','1 medium carrot finely diced','2 big handfuls fresh spinach or 100g frozen squeezed dry','4 garlic cloves minced','2 tbsp tomato puree','1 tbsp Worcestershire sauce','1 Knorr beef stock pot dissolved in 200ml boiling water - less liquid than hob version as slow cooker retains moisture','1 tsp dried thyme','1 tsp dried rosemary','Salt and black pepper','1 tbsp olive oil','Make cauliflower mash separately when ready to serve'],
+   steps:['Brown mince in a pan with olive oil first - do not skip this step. Browning creates flavour that slow cooking alone cannot. Drain excess fat','Transfer browned mince to slow cooker','In same pan quickly fry onion celery and carrot 3-4 mins then add to slow cooker','Add mushrooms garlic tomato puree Worcestershire sauce stock herbs salt and pepper to slow cooker','Stir everything together','LOW: Cook 6-8 hours - perfect to put on before bed and wake up to rich deep flavoured mince','HIGH: Cook 3-4 hours - good for daytime cooking','Add spinach in last 30 mins of cooking - stir in put lid back on','Make cauliflower mash fresh when ready to serve or use pre-made from fridge','Spoon mince into baking dish top with cauliflower mash and bake or air fry to get golden top if desired - or just serve as is','TIP: Less stock than hob version - slow cooker traps steam so less liquid evaporates','TIP: Browning the mince first is non negotiable - grey boiled mince has no flavour','TIP: Overnight on low is perfect for night shift workers - start before your shift end to ready mince when you wake up','TIP: Freezes brilliantly - portion into 6 containers once cooled']},
+  {id:40,name:'SLOW COOKER: Keto creamy mushroom soup',carbs:5,protein:6,fat:20,time:'Low 5-6 hrs or High 2-3 hrs serves 4',tags:['soup','slow cooker','comfort food','soft food','batch make'],
+   ingredients:['400g mushrooms any variety roughly chopped','1 medium onion diced','3 garlic cloves minced','500ml chicken or vegetable stock low sodium','2 tbsp butter','1 tsp dried thyme','Salt and white pepper','150ml double cream - added at end only','Optional handful spinach'],
+   steps:['Add mushrooms onion garlic stock butter thyme salt and pepper to slow cooker - no pre-frying needed for this one','Stir together','LOW: Cook 5-6 hours until mushrooms are very tender and flavours have melded','HIGH: Cook 2-3 hours','Add spinach if using in last 20 mins','Remove lid and blend completely smooth using hand blender directly in slow cooker pot - or transfer to Ninja in batches','Add double cream after blending and stir through - do not cook on heat after adding cream','Taste and adjust seasoning','Serve warm not hot','TIP: Unlike the cottage pie you do not need to pre-fry anything for this soup - everything just goes in raw','TIP: Blending directly in the slow cooker pot saves washing up if using a hand blender','TIP: Make double batch - freezes perfectly before adding cream','TIP: The long slow cook gives much deeper mushroom flavour than the quick hob version']},
+  {id:41,name:'SLOW COOKER: Keto creamy chicken soup',carbs:4,protein:32,fat:18,time:'Low 6-8 hrs or High 3-4 hrs serves 4',tags:['soup','chicken','slow cooker','comfort food','soft food','batch make'],
+   ingredients:['400g chicken breast or thigh - thigh recommended for slow cooker as stays more moist','1 medium onion diced','3 garlic cloves minced','1 stick celery diced','500ml chicken stock low sodium','2 tbsp butter or olive oil','1 tsp dried thyme','1 tsp dried parsley','1 tsp Dijon mustard','Salt and white pepper','150ml double cream - added at end only','Optional handful spinach'],
+   steps:['Add chicken pieces onion celery garlic stock butter thyme parsley Dijon mustard salt and pepper to slow cooker','Stir together - no pre-frying needed','LOW: Cook 6-8 hours - chicken will be incredibly tender and falling apart','HIGH: Cook 3-4 hours','Add spinach if using in last 20 mins','Remove chicken pieces and shred slightly with two forks - makes blending easier','Return to pot and blend completely smooth using hand blender or Ninja','Add double cream after blending stir through','Taste and adjust seasoning','Serve warm not hot','TIP: Chicken thigh is much better than breast in a slow cooker - stays moist and flavourful rather than going stringy','TIP: The long cook makes this incredibly rich and deeply flavoured - much better than the quick hob version','TIP: Perfect to put on before a night shift - ready when you wake up','TIP: Freeze before adding cream for best results when reheating']},
+  {id:42,name:'SLOW COOKER: Keto creamy tomato soup',carbs:6,protein:4,fat:16,time:'Low 6-8 hrs or High 3-4 hrs serves 4',tags:['soup','tomato','slow cooker','comfort food','vegetarian','batch make'],
+   ingredients:['2 tins 400g each chopped tomatoes','1 medium onion diced','3 garlic cloves minced','200ml chicken or vegetable stock','1 tsp tomato paste','1 tsp dried basil','Half tsp smoked paprika','Pinch of Pure Via caster','Salt and white pepper','100ml double cream - added at end only','2 tbsp butter or olive oil'],
+   steps:['Add chopped tomatoes onion garlic stock tomato paste basil smoked paprika Pure Via caster salt pepper and butter to slow cooker','Stir together','LOW: Cook 6-8 hours - tomatoes break down completely and flavour deepens beautifully','HIGH: Cook 3-4 hours','Blend completely smooth using hand blender directly in pot or transfer to Ninja','Pass through sieve if you want completely silky texture - optional','Add double cream after blending stir through','Taste and adjust - more Pure Via if too acidic','Serve warm not hot','TIP: The long slow cook caramelises the tomatoes naturally giving incredible depth - much richer than the quick hob version','TIP: No need to pre-fry anything - everything goes in raw','TIP: Make a huge batch - this freezes perfectly before adding cream','TIP: Pure Via caster is essential to balance the acidity - do not skip it']},
+  {id:44,name:'Keto flaxseed shortbread cookies (cinnamon vanilla lemon hazelnut)',carbs:1,protein:4,fat:8,time:'25 mins makes 12',tags:['baking','cookies','sweet treat','low calorie','flaxseed','liver friendly'],
+   ingredients:['200g ground golden flaxseed - you have this already','3 tbsp Pure Via caster','1 tbsp Pure Via brown sugar alternative - enhances the brown butter flavour beautifully','2 large eggs','3 tbsp butter for browning - becomes brown butter','1 tsp vanilla extract','1 tsp cinnamon','Zest of 1 lemon - just the zest not juice','1 tsp lemon juice','60g whole hazelnuts - left whole and folded in at end','100g fresh or frozen blueberries - frozen preferred do not defrost','Pinch of salt','1-2 tbsp water if mixture too dry'],
+   steps:['Preheat oven to 170C. Line baking tray with parchment','BROWN BUTTER: Melt butter in a small pan over medium heat. Keep cooking stirring occasionally for 3-4 mins until it turns golden and smells nutty and caramelised - watch carefully it goes from brown to burnt quickly','Remove from heat immediately and leave to cool slightly - about 5 mins. This is your flavour secret','Mix ground flaxseed Pure Via caster Pure Via brown salt and cinnamon together in a bowl','Add eggs brown butter vanilla extract lemon zest and lemon juice - mix well','The flaxseed will absorb moisture and become gel-like as you mix - this is normal and is what binds everything','Leave mixture to rest 2-3 mins - flaxseed continues absorbing and firms up. Should be thick and holdable','If too dry add water half tbsp at a time. If too wet add a little more flaxseed','Fold in whole hazelnuts gently','Fold in frozen blueberries last and very gently - just 3-4 folds or they bleed purple into dough','Roll into 12 balls and place on parchment','Press a few extra hazelnuts on top of each cookie - looks beautiful and adds crunch','Press down into rounds about 1cm thick','Bake 170C for 12-14 mins until edges just set and surface looks dry - middle will look slightly underdone','Do not overbake - they firm up as they cool into that perfect between-texture','Cool completely on tray minimum 15 mins before touching','Store airtight in fridge up to 5 days or freeze up to 1 month','TIP: Brown butter is the game changer - same amount of butter but tastes twice as rich and buttery','TIP: Pure Via brown sugar alternative with brown butter gives a toffee caramel depth that makes these taste incredibly indulgent','TIP: Frozen blueberries burst beautifully when you eat the cookie - do not defrost first','TIP: The lemon zest brightens everything and stops the flaxseed tasting earthy','TIP: Still roughly half the calories of your almond flour cookies despite the extra tbsp butter','TIP: Flaxseed actively helps reduce liver fat - these are genuinely good for you as well as delicious']},
+  {id:43,name:'NET CARB CHEAT SHEET',carbs:0,protein:0,fat:0,time:'Reference guide',tags:['reference','carb counting','cheat sheet'],
+   ingredients:['TARGET: Under 20g net carbs per day for strict keto','NET CARBS = Total carbs minus fibre on the label','BASICALLY FREE (eat freely - under 1g per portion): Beef mince, chicken, fish, eggs, butter, olive oil, hard cheese, spinach, lettuce, kale, cucumber, mushrooms, bacon, cream cheese','VERY LOW (count roughly): Cauliflower 3g per 100g, Broccoli 4g per 100g, Courgette 2g per 100g, Double cream 2g per 100ml, Sour cream 3g per 100g, Avocado 2g per half','LOW - WATCH PORTIONS: Onion 5g per 100g (half onion = 2-3g), Tomato 3g per 100g, Carrot 6g per 100g (small amount only), Peppers 4g per 100g, Greek yogurt 4g per 100g','NUTS per 30g handful: Walnuts 2g, Hazelnuts 2g, Almonds 2.5g, Brazil nuts 1.3g, Cashews 8g (limit these)','YOUR RECIPES approximate per portion: Cottage pie 8g, Almond bun 2g, Brazil nut bun 2g, Cottage cheese bun 2g, KFC nuggets 2g, Fish fingers 1g, Croquettes 2g each (mini), Cookie 4-5g, Tiramisu 5g, Bakewell tart 5g, Coffee cake 4g, Ferrero Rocher 2g each, Raffaello 2g each, Jelly sweets 1g each','SAUCES per tbsp: Big Mac sauce 1g, Big Tasty 1g, Big Arch 1g, McChicken sauce 1g, Ketchup 2g, BBQ sauce 3g, Mayo 0g','SOUPS per bowl: Mushroom 5g, Chicken 4g, Tomato 6g, Cauliflower cheese 6g','DRINKS: Water 0g, Black coffee 0g, Tea no milk 0g, Unsweetened almond milk 0.5g per 100ml, Full fat milk avoid - 5g per 100ml','SWEETENERS: Pure Via caster 0g, Pure Via powdered 0g, Pure Via brown 0g - all safe and free','AVOID COMPLETELY: Bread, pasta, rice, potatoes, sugar, honey, most fruit except berries in small amounts, beer, sweet wine, fruit juice, most sauces from shops'],
+   steps:['DAILY ROUTINE: Add up roughly as you go through the day','MORNING: Eggs bacon spinach = basically 0g - great start','LUNCH: Check what you are having - meat and veg based meals are easy to stay low','EVENING: If you have used 10-12g in the day you have room for a treat - cookie jelly sweets or some berries','NIGHT SHIFT: Keep free foods ready - cheese cold meat boiled eggs - grab these before reaching for anything else','SIMPLE RULE: If it grew above ground it is usually low carb. If it grew below ground it is usually high carb - potatoes carrots parsnips are all underground','LABEL READING: Look for carbohydrates of which sugars line. Use the carbohydrates total not just sugars. Subtract fibre from total carbs to get net carbs','WHEN YOU GO OVER: Do not panic. Just get back under 20g the next day. One bad day does not knock you out of ketosis if you recover quickly','PLATEAU BUSTER: If weight loss stalls for 2-3 weeks try strict 20g for one week - usually kickstarts it again','BLOOD SUGAR CHECK: Your monitor is your best guide - if blood sugar stays stable you are doing well regardless of exact carb count']},
+  {id:45,name:'Keto baked cauliflower mac and cheese (slow cooker then baked)',carbs:7,protein:18,fat:28,time:'Low 4-5 hrs or High 2-3 hrs then 20 mins baking (serves 8-10)',tags:['dinner','slow cooker','batch cook','comfort food','vegetarian','freezer friendly'],
+   ingredients:['2 large cauliflowers cut into florets then roughly pulsed in Ninja to rice sized pieces','2 medium onions finely diced','200g mushrooms roughly chopped','3 garlic cloves minced','300ml double cream','200g full fat cream cheese','200g strong cheddar grated - half for sauce half for topping','2 big handfuls fresh spinach','1 tsp mustard powder - classic mac and cheese flavour','1 tsp smoked paprika','Half tsp garlic powder','Salt and black pepper','2 large eggs beaten - added just before baking','Extra cheddar or parmesan for golden topping'],
+   steps:['RICE THE CAULIFLOWER: Cut into florets and pulse in Ninja in short 2-3 second bursts until rice or small mac sized pieces. Do not over blend or goes mushy. Do in batches','Add riced cauliflower onions mushrooms garlic double cream cream cheese mustard powder smoked paprika garlic powder salt and pepper to slow cooker','Stir everything together well','LOW: Cook 4-5 hours until cauliflower tender and sauce has come together','HIGH: Cook 2-3 hours','Stir halfway through if possible','Add spinach and half the grated cheddar in last 30 mins - stir through and put lid back on','Taste and adjust seasoning - be generous with salt and pepper','IMPORTANT: Let mixture cool 15-20 mins before adding eggs - hot mixture scrambles eggs immediately','Beat eggs well then stir thoroughly through the cauliflower mixture','Transfer to large baking dish or two medium dishes','Scatter remaining cheddar generously over entire top surface','Bake at 200C for 18-22 mins until top is deep golden and bubbling around edges','Rest 5 mins before serving - sets slightly as it cools','TIP: Mustard powder is the secret ingredient in all great mac and cheese - do not skip it','TIP: Strong mature cheddar gives much better flavour than mild','TIP: Cooling before adding eggs is crucial - this step cannot be rushed','TIP: Freezes brilliantly - portion before freezing and reheat in oven or air fryer','TIP: Add crispy bacon bits on top before baking for loaded mac and cheese version','TIP: Two cauliflowers makes a generous batch - perfect for batch cooking and night shifts']},
+  {id:47,name:'Ninja Speedi rich beef bolognaise with brown pasta',carbs:45,protein:38,fat:18,time:'35 mins (serves 2)',tags:['dinner','ninja speedi','pasta','beef','one pot','quick'],
+   ingredients:['300g beef mince 20% fat','150g brown pasta - penne or fusilli hold the sauce better than spaghetti in the Speedi','1 medium onion finely diced','2 garlic cloves minced','1 stick celery finely diced','1 medium carrot finely grated','100g mushrooms finely chopped','150ml red wine - cheap cooking wine is fine, adds enormous depth','1 tin 400g chopped tomatoes','2 tbsp tomato paste','1 Knorr beef stock pot','200ml boiling water','1 tsp dried oregano','1 tsp dried basil','Half tsp dried thyme','1 tbsp olive oil','Salt and black pepper','Optional: parmesan to serve','Optional: fresh basil to serve'],
+   steps:['SEAR/SAUTE: Select Sear/Saute on Ninja Speedi and heat olive oil','Add mince and brown well breaking up with a spoon - do not stir too much, let it get colour. About 5-6 mins','Add onion celery and carrot - cook 3-4 mins until softened','Add mushrooms and garlic - cook 2 mins','Add tomato paste stir and cook 2 mins to caramelise - this adds huge depth','Pour in red wine and let it bubble for 2 mins - the alcohol cooks off and leaves incredible flavour','Add chopped tomatoes oregano basil thyme salt and pepper','Dissolve stock pot in 200ml boiling water and add to pot','Stir everything together and taste - season well','Add brown pasta - push it down into the liquid so it is mostly submerged','PRESSURE COOK: Put lid on select Pressure Cook on High for 8 mins','Quick release pressure carefully when done','Open and stir everything together - pasta should be cooked and have absorbed the sauce','If too wet select Sear/Saute and simmer 2-3 mins to reduce. If too dry add splash of water','Taste and adjust seasoning - may need more salt','Serve immediately with parmesan grated over and fresh basil if you have it','TIP: The red wine is the secret to a truly rich deep bolognaise - do not skip it','TIP: Finely grating the carrot means it melts into the sauce completely - adds sweetness and body invisibly','TIP: Brown pasta holds up better than white in the Speedi and is better for your blood sugar','TIP: 8 mins pressure cook is perfect for most brown pasta - check your pasta packet as some thicker shapes may need 9-10 mins','TIP: Quick release not natural release or pasta overcooks and goes mushy','TIP: This is higher carb than your usual meals - perfect post swimming meal when your muscles need the fuel','TIP: Leftovers next day taste even better - sauce deepens overnight']},
+  {id:46,name:'Spelt walnut blueberry shortbread cookies',carbs:14,protein:3,fat:10,time:'45 mins including chilling (makes 16-18)',tags:['baking','cookies','sweet treat','spelt','lower gi','walnut','blueberry'],
+   ingredients:['300g spelt flour','200g cold butter cut into small cubes - must be cold not room temperature','100g Pure Via caster sugar alternative','1 tsp vanilla extract','1 tsp cinnamon','Zest of 1 lemon','1 tsp lemon juice','100g walnuts roughly chopped','100g fresh or frozen blueberries - frozen preferred do not defrost','Pinch of salt'],
+   steps:['Mix spelt flour Pure Via caster cinnamon lemon zest and salt together in a large bowl','Add cold butter cubes and rub into flour with fingertips until fine breadcrumbs - work quickly so butter stays cold','Add vanilla extract and lemon juice mix briefly','Dough should just come together when pressed. Too dry add half tsp cold water. Too wet add tiny bit more spelt flour','Fold in roughly chopped walnuts gently','Fold in frozen blueberries last with just 3-4 gentle folds - do not overmix or they bleed purple','Shape into a log wrap in cling film and refrigerate 30 mins - do not skip','Preheat oven to 160C while dough chills - lower than normal as spelt browns faster','Slice log into rounds about 1cm thick and place on parchment lined tray with space between','Bake 160C for 12-15 mins until edges barely golden - will look underdone in middle','Do not wait for fully golden - spelt catches quickly at the end','Cool completely minimum 15 mins - firms up into perfect shortbread texture as it cools','Store airtight up to 5 days or freeze up to 1 month','TIP: Spelt is NOT gluten free - ancient wheat, fine unless gluten intolerant','TIP: Lower GI than regular flour so slower blood sugar rise - check your Libre after first batch','TIP: The 30 min chill is non negotiable - cold butter gives classic shortbread crumble','TIP: Frozen blueberries burst beautifully when eating - do not defrost first','TIP: Much lower calorie than almond flour cookies - roughly 120 calories each','TIP: Direct swap for regular plain flour in most recipes - same amounts same method']}
+]
+
+// ========== STATE ==========
+let state = {
+  currentPage: 'home',
+  favorites: JSON.parse(localStorage.getItem('kk_favs') || '[]'),
+  recent: JSON.parse(localStorage.getItem('kk_recent') || '[]'),
+  shop: JSON.parse(localStorage.getItem('kk_shop') || '[]'),
+  plan: JSON.parse(localStorage.getItem('kk_plan') || '{}'),
+  theme: localStorage.getItem('kk_theme') || 'dark',
+  searchQuery: '',
+  activeTags: [],
+  scale: 1,
+  timers: {},
+  voiceEnabled: false,
+  chatMessages: JSON.parse(localStorage.getItem('kk_chat') || '[]'),
+};
+
+let recipes = ALL.filter(r => r.id !== 43); // exclude cheat sheet from display
+let cookState = null;
+
+// ========== THEME ==========
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', state.theme);
+}
+applyTheme();
+
+// ========== IMAGE HELPERS ==========
+const UNSPLASH_QUERIES = {
+  breakfast: 'eggs+breakfast+food',
+  lunch: 'healthy+lunch+bowl',
+  dinner: 'gourmet+dinner+plate',
+  soup: 'soup+bowl+food',
+  cake: 'chocolate+cake+slice',
+  cookies: 'cookies+baking',
+  burger: 'burger+gourmet',
+  fish: 'grilled+salmon+plate',
+  chicken: 'chicken+dish+food',
+  chocolate: 'dark+chocolate+dessert',
+  tiramisu: 'tiramisu+dessert',
+  tart: 'tart+pastry+dessert',
+  salad: 'fresh+salad+bowl',
+  pasta: 'pasta+dish+italian',
+  buns: 'bread+rolls+bakery',
+  sauce: 'sauce+condiment',
+  default: 'healthy+food+meal',
+};
+
+// Unsplash image mapping - deterministic by recipe ID for consistency
+const UNSPLASH_IDS = {
+  1: 'photo-1525351484163-7529414344d8', // eggs avocado
+  2: 'photo-1547592180-85f173990554', // cauliflower soup
+  3: 'photo-1467003909585-2f8a72700288', // salmon
+  4: 'photo-1574484284002-952d92456975', // cottage pie
+  5: 'photo-1509722747841-4bc4f6c6b2fb', // bread buns
+  6: 'photo-1509722747841-4bc4f6c6b2fb', // brazil buns
+  7: 'photo-1509722747841-4bc4f6c6b2fb', // cottage cheese buns
+  8: 'photo-1551024506-0bccd828d307', // coffee cake
+  9: 'photo-1464305795204-6f5bbfc7fb81', // bakewell tart
+  10: 'photo-1548907040-4d42c0e55fc3', // ferrero rocher
+  11: 'photo-1621939514649-280e2ee25f60', // raffaello coconut
+  12: 'photo-1511381939415-e44dc0ec3be7', // sponge fingers
+  13: 'photo-1511381939415-e44dc0ec3be7', // sponge fingers
+  14: 'photo-1571877227200-a0d98ea607e9', // tiramisu
+  15: 'photo-1565299585323-38d6b0865b47', // dutch baby
+  16: 'photo-1565299585323-38d6b0865b47', // sauce
+  17: 'photo-1565299585323-38d6b0865b47', // sauce
+  18: 'photo-1565299585323-38d6b0865b47', // sauce
+  19: 'photo-1568901346375-23c9450c58cd', // burger
+  20: 'photo-1568901346375-23c9450c58cd', // burger
+  21: 'photo-1630384060421-cb20d0e0649d', // croquettes
+  22: 'photo-1607190074257-dd4b7af0309f', // ketchup
+  23: 'photo-1607190074257-dd4b7af0309f', // ketchup
+  24: 'photo-1558030006-450675393462', // bbq sauce
+  25: 'photo-1547592166-23ac45744acd', // mayo
+  26: 'photo-1568901346375-23c9450c58cd', // mcchicken
+  27: 'photo-1604908177453-7462950a6a3b', // coating
+  28: 'photo-1562967914-608f82629710', // kfc nuggets
+  29: 'photo-1467003909585-2f8a72700288', // fish fingers
+  30: 'photo-1568901346375-23c9450c58cd', // mcchicken sandwich
+  31: 'photo-1512621776951-a57141f2eefd', // cucumber salad
+  32: 'photo-1481391319762-47dff72954d9', // jelly sweets
+  33: 'photo-1467003909585-2f8a72700288', // battered fish
+  34: 'photo-1585325701956-60dd9c8399b6', // courgette fries
+  35: 'photo-1499636136210-6f4ee915583e', // shortbread cookies
+  36: 'photo-1547592180-85f173990554', // mushroom soup
+  37: 'photo-1547592180-85f173990554', // chicken soup
+  38: 'photo-1547592180-85f173990554', // tomato soup
+  39: 'photo-1574484284002-952d92456975', // slow cooker cottage pie
+  40: 'photo-1547592180-85f173990554', // slow cooker mushroom
+  41: 'photo-1547592180-85f173990554', // slow cooker chicken
+  42: 'photo-1547592180-85f173990554', // slow cooker tomato
+  44: 'photo-1499636136210-6f4ee915583e', // flaxseed cookies
+  45: 'photo-1543339308-43e59d6b73a6', // mac and cheese
+  46: 'photo-1499636136210-6f4ee915583e', // spelt cookies
+  47: 'photo-1621996346565-e3dbc646d9a9', // bolognaise
+};
+
+function getUnsplashUrl(recipe, width=400, height=300) {
+  const photoId = UNSPLASH_IDS[recipe.id] || 'photo-1490645935967-10de6ba17061';
+  return `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=${width}&h=${height}&q=80`;
+}
+
+function getImgQuery(recipe) {
+  return getUnsplashUrl(recipe);
+}
+
+const EMOJIS = {
+  eggs: '🥚', soup: '🍲', salmon: '🐟', pie: '🥧', bun: '🍞', cake: '🎂',
+  bakewell: '🫐', ferrero: '🍫', raffaello: '🤍', tiramisu: '☕', fingers: '🐟',
+  burger: '🍔', nugget: '🍗', chicken: '🍗', croquette: '🥔', ketchup: '🍅',
+  bbq: '🔥', mayo: '🥣', sauce: '🫙', jelly: '🟣', cookie: '🍪', tart: '🫐',
+  mash: '🥦', fish: '🐟', courgette: '🥒', default: '🍽️'
+};
+
+function getEmoji(recipe) {
+  const n = recipe.name.toLowerCase();
+  if (n.includes('egg')) return '🥚';
+  if (n.includes('soup')) return '🍲';
+  if (n.includes('salmon') || n.includes('fish')) return '🐟';
+  if (n.includes('cottage pie') || n.includes('mash')) return '🥧';
+  if (n.includes('bun') || n.includes('bread')) return '🍞';
+  if (n.includes('cake')) return '🎂';
+  if (n.includes('bakewell') || n.includes('tart')) return '🫐';
+  if (n.includes('ferrero') || n.includes('chocolate')) return '🍫';
+  if (n.includes('raffaello')) return '🤍';
+  if (n.includes('tiramisu')) return '☕';
+  if (n.includes('burger') || n.includes('smash')) return '🍔';
+  if (n.includes('nugget') || n.includes('chicken')) return '🍗';
+  if (n.includes('cookie')) return '🍪';
+  if (n.includes('jelly')) return '🟣';
+  if (n.includes('ketchup')) return '🍅';
+  if (n.includes('sauce') || n.includes('mayo')) return '🫙';
+  if (n.includes('croquette') || n.includes('fries')) return '🥔';
+  if (n.includes('courgette')) return '🥒';
+  if (n.includes('pasta') || n.includes('bolognaise')) return '🍝';
+  if (n.includes('salad')) return '🥗';
+  return '🍽️';
+}
+
+// ========== NAVIGATION ==========
+function nav(page) {
+  state.currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  
+  const pageEl = document.getElementById('page-' + page);
+  if (page === 'chat') {
+    pageEl.style.display = 'flex';
+  } else {
+    pageEl.style.display = 'block';
+  }
+  
+  const navBtn = document.querySelector(`[data-page="${page}"]`);
+  if (navBtn) navBtn.classList.add('active');
+  
+  renderPage(page);
+}
+
+function renderPage(page) {
+  switch(page) {
+    case 'home': renderHome(); break;
+    case 'recipes': renderRecipes(); break;
+    case 'planner': renderPlanner(); break;
+    case 'shopping': renderShopping(); break;
+    case 'chat': renderChat(); break;
+  }
+}
+
+// ========== TIMER SYSTEM ==========
+let timerIntervals = {};
+
+function detectTimerInStep(step) {
+  const patterns = [
+    /(\d+)[\s-]*(?:to\s*\d+\s*)?min(?:ute)?s?/i,
+    /(\d+)[\s-]*(?:to\s*\d+\s*)?hour?s?/i,
+    /(\d+)[\s-]*(?:to\s*\d+\s*)?sec(?:ond)?s?/i,
+  ];
+  for (const p of patterns) {
+    const m = step.match(p);
+    if (m) {
+      let secs = parseInt(m[1]);
+      if (p.source.includes('hour')) secs *= 3600;
+      else if (p.source.includes('min')) secs *= 60;
+      return secs;
+    }
+  }
+  return null;
+}
+
+function startTimer(id, totalSecs, label) {
+  if (timerIntervals[id]) clearInterval(timerIntervals[id]);
+  state.timers[id] = { total: totalSecs, remaining: totalSecs, running: true, label, paused: false };
+  timerIntervals[id] = setInterval(() => {
+    if (!state.timers[id] || state.timers[id].paused) return;
+    state.timers[id].remaining--;
+    if (state.timers[id].remaining <= 0) {
+      clearInterval(timerIntervals[id]);
+      alarmTimer(id);
+      return;
+    }
+    updateTimerUI(id);
+    updateFloatingTimers();
+  }, 1000);
+  updateFloatingTimers();
+}
+
+function pauseTimer(id) {
+  if (state.timers[id]) state.timers[id].paused = !state.timers[id].paused;
+  updateTimerUI(id);
+}
+
+function snoozeTimer(id) {
+  if (state.timers[id]) {
+    state.timers[id].remaining += 60;
+    state.timers[id].paused = false;
+    startTimer(id, state.timers[id].total, state.timers[id].label);
+  }
+}
+
+function alarmTimer(id) {
+  delete state.timers[id];
+  updateFloatingTimers();
+  if ('vibrate' in navigator) navigator.vibrate([300, 100, 300, 100, 300]);
+  const audio = new AudioContext();
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => {
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.connect(gain); gain.connect(audio.destination);
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.3, audio.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.5);
+      osc.start(); osc.stop(audio.currentTime + 0.5);
+    }, i * 600);
+  }
+  if (cookState) renderCookStep();
+}
+
+function formatTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function updateTimerUI(id) {
+  const el = document.getElementById('timer-' + id);
+  if (el && state.timers[id]) {
+    const disp = el.querySelector('.timer-display');
+    if (disp) disp.textContent = formatTime(state.timers[id].remaining);
+    const ring = el.querySelector('.timer-ring-fill');
+    if (ring) {
+      const circ = 2 * Math.PI * 35;
+      const progress = state.timers[id].remaining / state.timers[id].total;
+      ring.style.strokeDashoffset = circ * (1 - progress);
+    }
+  }
+}
+
+function updateFloatingTimers() {
+  const el = document.getElementById('floatingTimers');
+  if (!el) return;
+  el.innerHTML = Object.entries(state.timers).map(([id, t]) =>
+    `<div class="float-timer" onclick="nav('${state.currentPage}')">${formatTime(t.remaining)} ⏱</div>`
+  ).join('');
+}
+
+// ========== HOME PAGE ==========
+function renderHome() {
+  const page = document.getElementById('page-home');
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const favCount = state.favorites.length;
+  const recipeCount = recipes.filter(r => !['reference','cheat sheet'].some(t => (r.tags||[]).includes(t))).length;
+  
+  const recentHtml = state.recent.length ? `
+    <div style="padding:0 16px 8px"><div class="section-title">Recently Cooked</div></div>
+    <div class="recent-scroll">
+      ${state.recent.slice(0,6).map(id => {
+        const r = recipes.find(x => x.id === id);
+        if (!r) return '';
+        return `<div class="recent-card animate-in" onclick="showDetail(${r.id})">
+          <img src="${getUnsplashUrl(r, 260, 160)}" alt="${r.name}" style="width:100%;height:80px;object-fit:cover" loading="lazy" onerror="this.style.display='none'">
+          <div class="recent-card-name">${r.name}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  ` : '';
+
+  const featuredIds = [4, 9, 10, 14, 30, 45];
+  const featured = featuredIds.map(id => recipes.find(r => r.id === id)).filter(Boolean);
+
+  page.innerHTML = `
+    <div class="page-header">
+      <div>
+        <div class="home-greeting">${greeting} 👋</div>
+        <div class="home-title">Your <span>Keto</span><br>Kitchen</div>
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()">${state.theme === 'dark' ? '☀️' : '🌙'}</button>
+    </div>
+    
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num">${recipeCount}</div><div class="stat-lbl">Recipes</div></div>
+      <div class="stat-card"><div class="stat-num">${favCount}</div><div class="stat-lbl">Favourites</div></div>
+      <div class="stat-card"><div class="stat-num">${state.shop.filter(i=>!i.checked).length}</div><div class="stat-lbl">To Buy</div></div>
+      <div class="stat-card"><div class="stat-num">${Object.keys(state.plan).length}</div><div class="stat-lbl">Meals Planned</div></div>
+    </div>
+    
+    ${recentHtml}
+    
+    <div style="padding:0 16px 8px;margin-top:8px"><div class="section-title">Featured Recipes</div></div>
+    <div style="padding:0 12px;display:flex;flex-direction:column;gap:12px;">
+      ${featured.map((r,i) => recipeCardHtml(r, true, i*50)).join('')}
+    </div>
+    <div style="height:16px"></div>
+  `;
+}
+
+function toggleTheme() {
+  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('kk_theme', state.theme);
+  applyTheme();
+  renderPage(state.currentPage);
+}
+
+// ========== RECIPE CARD HTML ==========
+function recipeCardHtml(r, wide=false, delay=0) {
+  const isFav = state.favorites.includes(r.id);
+  const style = delay ? `style="animation-delay:${delay}ms;opacity:0"` : '';
+  const imgUrl = getUnsplashUrl(r, 600, 300);
+  return `
+    <div class="recipe-card animate-in" ${style} onclick="showDetail(${r.id})">
+      <img class="recipe-card-img" src="${imgUrl}" alt="${r.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="recipe-card-img-placeholder" style="display:none">${getEmoji(r)}</div>
+      <div class="recipe-card-body">
+        <div class="recipe-card-title">${r.name}</div>
+        <div class="recipe-card-meta">
+          <span>⏱ ${r.time}</span>
+          <span>🔥 ${r.carbs}g carbs</span>
+          <span>💪 ${r.protein}g protein</span>
+        </div>
+        <div class="recipe-card-tags" style="margin-top:8px">
+          ${(r.tags||[]).slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+function recipeCardSmallHtml(r, delay=0) {
+  const style = delay ? `style="animation-delay:${delay}ms;opacity:0"` : '';
+  const imgUrl = getUnsplashUrl(r, 300, 200);
+  return `
+    <div class="recipe-card animate-in" ${style} onclick="showDetail(${r.id})">
+      <img class="recipe-card-img" src="${imgUrl}" alt="${r.name}" style="height:110px" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="recipe-card-img-placeholder" style="height:110px;font-size:32px;display:none">${getEmoji(r)}</div>
+      <div class="recipe-card-body" style="padding:10px">
+        <div class="recipe-card-title" style="font-size:13px">${r.name}</div>
+        <div class="recipe-card-meta" style="font-size:11px">
+          <span>${r.carbs}g carbs</span>
+          <span>${r.time}</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ========== RECIPES PAGE ==========
+function renderRecipes() {
+  const page = document.getElementById('page-recipes');
+  const allTags = ['breakfast','lunch','dinner','sweet treat','baking','soup','sauce','burger','chicken','fish','batch cook','air fryer','quick','slow cooker','snack'];
+  
+  let filtered = recipes.filter(r => {
+    const notMeta = !['reference','cheat sheet'].some(t => (r.tags||[]).includes(t));
+    const matchSearch = !state.searchQuery || r.name.toLowerCase().includes(state.searchQuery.toLowerCase());
+    const matchTags = state.activeTags.length === 0 || state.activeTags.every(t => (r.tags||[]).includes(t));
+    return notMeta && matchSearch && matchTags;
+  });
+
+  page.innerHTML = `
+    <div class="page-header">
+      <div class="display h2">Recipes</div>
+      <button class="icon-btn" onclick="showFavorites()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      </button>
+    </div>
+    
+    <div class="search-wrap">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" placeholder="Search recipes..." value="${state.searchQuery}" oninput="searchRecipes(this.value)">
+    </div>
+    
+    <div class="tags-scroll">
+      ${allTags.map(t => `<span class="tag ${state.activeTags.includes(t)?'active':''}" onclick="toggleTag('${t}')">${t}</span>`).join('')}
+    </div>
+    
+    <div style="padding:8px 12px 4px 16px;font-size:13px;color:var(--text3)">${filtered.length} recipes</div>
+    
+    <div class="recipe-grid">
+      ${filtered.map((r,i) => recipeCardSmallHtml(r, i*30)).join('')}
+    </div>
+    <div style="height:16px"></div>
+  `;
+}
+
+function searchRecipes(q) {
+  state.searchQuery = q;
+  renderRecipes();
+}
+
+function toggleTag(tag) {
+  if (state.activeTags.includes(tag)) {
+    state.activeTags = state.activeTags.filter(t => t !== tag);
+  } else {
+    state.activeTags.push(tag);
+  }
+  renderRecipes();
+}
+
+function showFavorites() {
+  state.activeTags = [];
+  state.searchQuery = '';
+  const favRecipes = recipes.filter(r => state.favorites.includes(r.id));
+  const page = document.getElementById('page-recipes');
+  page.innerHTML = `
+    <div class="page-header">
+      <button class="icon-btn" onclick="renderRecipes()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700">Favourites ❤️</div>
+      <div style="width:38px"></div>
+    </div>
+    ${favRecipes.length ? `
+      <div class="recipe-grid">
+        ${favRecipes.map(r => recipeCardSmallHtml(r)).join('')}
+      </div>
+    ` : `<div class="empty-state"><div class="empty-emoji">💔</div><div class="empty-text">No favourites yet</div></div>`}
+  `;
+}
+
+// ========== DETAIL PAGE ==========
+function showDetail(id) {
+  const r = recipes.find(x => x.id === id);
+  if (!r) return;
+  
+  const page = document.getElementById('page-' + state.currentPage);
+  page.scrollTo(0, 0);
+  
+  const isFav = state.favorites.includes(id);
+  const scaledIngredients = scaleIngredients(r.ingredients, state.scale);
+  
+  page.innerHTML = `
+    <div class="detail-header">
+      <img class="detail-hero" src="${getUnsplashUrl(r, 800, 500)}" alt="${r.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="detail-hero-placeholder animate-in" style="display:none">${getEmoji(r)}</div>
+      <button class="detail-back" onclick="nav('${state.currentPage}')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="detail-fav fav-heart ${isFav?'active':''}" onclick="toggleFav(${id})">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="${isFav?'#ee0055':'none'}" stroke="${isFav?'#ee0055':'white'}" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      </button>
+    </div>
+    
+    <div class="detail-body">
+      <div class="detail-title">${r.name}</div>
+      
+      <div class="macro-row" style="margin-bottom:16px">
+        <div class="macro-pill"><div class="macro-val">${r.carbs}g</div><div class="macro-lbl">Net Carbs</div></div>
+        <div class="macro-pill"><div class="macro-val">${r.protein}g</div><div class="macro-lbl">Protein</div></div>
+        <div class="macro-pill"><div class="macro-val">${r.fat}g</div><div class="macro-lbl">Fat</div></div>
+        <div class="macro-pill"><div class="macro-val">${r.time.split(' ')[0]}</div><div class="macro-lbl">${r.time.split(' ').slice(1).join(' ')||'mins'}</div></div>
+      </div>
+      
+      <div class="scaler">
+        <span style="font-size:13px;color:var(--text2)">Servings</span>
+        <button class="scaler-btn" onclick="setScale(${id}, ${Math.max(0.5, state.scale - 0.5)})">−</button>
+        <div class="scaler-val">${state.scale}x</div>
+        <button class="scaler-btn" onclick="setScale(${id}, ${state.scale + 0.5})">+</button>
+      </div>
+      
+      <div class="detail-actions">
+        <button class="btn-primary" onclick="startCook(${id})">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Cook Now
+        </button>
+        <button class="btn-secondary" onclick="addToShop(${id})">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          Shop
+        </button>
+      </div>
+      
+      <div class="recipe-card-tags">
+        ${(r.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}
+      </div>
+      
+      <div class="section-title" style="margin-top:20px">Ingredients</div>
+      <div id="ingredients-list">
+        ${scaledIngredients.map((ing,i) => `
+          <div class="ingredient-item">
+            <div class="ingredient-check" id="ing-check-${i}" onclick="toggleIngCheck(${i})"></div>
+            <span id="ing-text-${i}">${ing}</span>
+          </div>
+        `).join('')}
+      </div>
+      
+      <div class="section-title">Steps</div>
+      ${(r.steps||[]).map((step,i) => {
+        const timerSecs = detectTimerInStep(step);
+        return `
+          <div class="step-item">
+            <div class="step-num">${i+1}</div>
+            <div>
+              <div class="step-text">${step}</div>
+              ${timerSecs ? `<button style="margin-top:8px;padding:6px 12px;background:var(--accent);color:#000;border:none;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer" onclick="startTimer('detail-${i}', ${timerSecs}, 'Step ${i+1}')">⏱ Start ${formatTime(timerSecs)} timer</button>` : ''}
+              <div id="timer-detail-${i}"></div>
+            </div>
+          </div>`;
+      }).join('')}
+      
+      <div style="height:20px"></div>
+    </div>
+  `;
+}
+
+function setScale(id, newScale) {
+  state.scale = Math.max(0.5, Math.min(4, newScale));
+  showDetail(id);
+}
+
+function scaleIngredients(ingredients, scale) {
+  if (scale === 1) return ingredients;
+  return ingredients.map(ing => {
+    return ing.replace(/(\d+(?:\.\d+)?)/g, (match) => {
+      const num = parseFloat(match) * scale;
+      return Number.isInteger(num) ? num : num.toFixed(1);
+    });
+  });
+}
+
+function toggleIngCheck(i) {
+  const check = document.getElementById('ing-check-' + i);
+  const text = document.getElementById('ing-text-' + i);
+  if (check) check.classList.toggle('checked');
+  if (text) text.style.textDecoration = check.classList.contains('checked') ? 'line-through' : '';
+  if (text) text.style.color = check.classList.contains('checked') ? 'var(--text3)' : '';
+}
+
+function toggleFav(id) {
+  if (state.favorites.includes(id)) {
+    state.favorites = state.favorites.filter(f => f !== id);
+  } else {
+    state.favorites.push(id);
+  }
+  localStorage.setItem('kk_favs', JSON.stringify(state.favorites));
+  showDetail(id);
+}
+
+function addToShop(id) {
+  const r = recipes.find(x => x.id === id);
+  if (!r) return;
+  (r.ingredients||[]).forEach(ing => {
+    if (!state.shop.find(i => i.name === ing)) {
+      state.shop.push({id: Date.now() + Math.random(), name: ing, cat: catFor(ing), checked: false});
+    }
+  });
+  localStorage.setItem('kk_shop', JSON.stringify(state.shop));
+  // Brief confirmation
+  const btn = document.querySelector('.btn-secondary');
+  if (btn) { btn.textContent = '✓ Added!'; setTimeout(() => btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg> Shop', 1500); }
+}
+
+function catFor(ing) {
+  const i = ing.toLowerCase();
+  if (/egg|butter|cream|cheese|milk|mascarpone|cottage/.test(i)) return 'Dairy & Eggs';
+  if (/salmon|chicken|beef|mince|bacon|turkey|tuna|sausage|pork|fish|cod/.test(i)) return 'Meat & Fish';
+  if (/broccoli|cauliflower|spinach|lettuce|avocado|courgette|pepper|onion|garlic|kale|cabbage|mushroom|tomato|cucumber|celery|carrot/.test(i)) return 'Vegetables';
+  if (/almond|walnut|hazelnut|brazil|cashew|nut|flax|coconut/.test(i)) return 'Nuts & Seeds';
+  return 'Pantry';
+}
+
+// ========== COOK MODE ==========
+function startCook(id) {
+  const r = recipes.find(x => x.id === id);
+  if (!r) return;
+  
+  // Add to recent
+  state.recent = [id, ...state.recent.filter(x => x !== id)].slice(0, 10);
+  localStorage.setItem('kk_recent', JSON.stringify(state.recent));
+  
+  cookState = {
+    recipe: r,
+    step: 0,
+    checkedIngredients: new Set(),
+  };
+  
+  // Wake lock
+  if ('wakeLock' in navigator) {
+    navigator.wakeLock.request('screen').catch(() => {});
+  }
+  
+  renderCookMode();
+}
+
+function renderCookMode() {
+  const el = document.getElementById('cookMode');
+  el.style.display = 'flex';
+  el.style.flexDirection = 'column';
+  el.style.position = 'fixed';
+  el.style.inset = '0';
+  el.style.zIndex = '200';
+  el.style.background = 'var(--bg)';
+  el.style.maxWidth = '430px';
+  el.style.left = '50%';
+  el.style.transform = 'translateX(-50%)';
+  
+  const r = cookState.recipe;
+  const totalSteps = (r.steps||[]).length;
+  const progress = ((cookState.step) / totalSteps * 100).toFixed(0);
+  
+  el.innerHTML = `
+    <div class="cook-progress-bar">
+      <div class="cook-progress-fill" style="width:${progress}%"></div>
+    </div>
+    <div class="cook-header">
+      <button class="cook-close" onclick="closeCook()">✕</button>
+      <div class="cook-recipe-name">${r.name}</div>
+      <div class="cook-step-count">${cookState.step + 1}/${totalSteps}</div>
+      <button class="cook-voice ${state.voiceEnabled?'active':''}" onclick="toggleVoice()" title="Voice">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>
+      </button>
+    </div>
+    <div class="cook-main" id="cookMain"></div>
+    <div class="cook-footer">
+      <button class="cook-prev" onclick="cookPrev()" ${cookState.step===0?'disabled style="opacity:0.3"':''}>←</button>
+      <button class="cook-next" onclick="cookNext()">
+        ${cookState.step >= totalSteps - 1 ? '🎉 Done!' : 'Next Step →'}
+      </button>
+    </div>
+  `;
+  
+  renderCookStep();
+}
+
+function renderCookStep() {
+  const main = document.getElementById('cookMain');
+  if (!main || !cookState) return;
+  
+  const r = cookState.recipe;
+  const step = r.steps[cookState.step];
+  const stepIdx = cookState.step;
+  const timerSecs = detectTimerInStep(step);
+  const timerId = 'cook-' + stepIdx;
+  const timerState = state.timers[timerId];
+  
+  // Find ingredients mentioned in this step
+  const stepIngredients = (r.ingredients||[]).filter(ing => {
+    const words = ing.toLowerCase().split(/[\s,]+/).filter(w => w.length > 3);
+    return words.some(w => step.toLowerCase().includes(w));
+  });
+  
+  main.innerHTML = `
+    <div class="cook-step-card slide-up">
+      <div class="cook-step-label">Step ${stepIdx + 1}</div>
+      <div class="cook-step-text">${step}</div>
+      
+      ${stepIngredients.length ? `
+        <div class="cook-ingredients-for-step">
+          <div class="cook-ing-label">Ingredients for this step</div>
+          ${stepIngredients.map(ing => `<div class="cook-ing-item">• ${ing}</div>`).join('')}
+        </div>
+      ` : ''}
+      
+      ${timerSecs ? `
+        <div class="cook-timer" id="timer-${timerId}">
+          <div class="timer-ring">
+            <svg width="80" height="80">
+              <circle class="timer-ring-bg" cx="40" cy="40" r="35"/>
+              <circle class="timer-ring-fill" cx="40" cy="40" r="35"
+                stroke-dasharray="${2 * Math.PI * 35}"
+                stroke-dashoffset="${timerState ? (2 * Math.PI * 35 * (1 - timerState.remaining / timerState.total)) : 0}"/>
+            </svg>
+            <div class="timer-time-inside">${timerState ? formatTime(timerState.remaining) : formatTime(timerSecs)}</div>
+          </div>
+          <div class="timer-display">${timerState ? formatTime(timerState.remaining) : formatTime(timerSecs)}</div>
+          <div class="timer-btns">
+            ${!timerState ? `<button class="timer-btn primary" onclick="startTimer('${timerId}', ${timerSecs}, 'Step ${stepIdx+1}')">▶ Start</button>` : `
+              <button class="timer-btn" onclick="pauseTimer('${timerId}')">${timerState.paused ? '▶ Resume' : '⏸ Pause'}</button>
+              <button class="timer-btn" onclick="snoozeTimer('${timerId}')">+1 min</button>
+            `}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+    
+    <div style="padding:4px 0">
+      <div class="section-title">All Ingredients</div>
+      ${(r.ingredients||[]).map((ing, i) => `
+        <div class="ingredient-item">
+          <div class="ingredient-check ${cookState.checkedIngredients.has(i)?'checked':''}" onclick="toggleCookIng(${i})">
+            ${cookState.checkedIngredients.has(i) ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+          </div>
+          <span style="${cookState.checkedIngredients.has(i)?'text-decoration:line-through;color:var(--text3)':''}">${ing}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  
+  // Voice announcement
+  if (state.voiceEnabled && 'speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(`Step ${stepIdx + 1}. ${step}`);
+    utt.rate = 0.9;
+    window.speechSynthesis.speak(utt);
+  }
+}
+
+function toggleCookIng(i) {
+  if (cookState.checkedIngredients.has(i)) {
+    cookState.checkedIngredients.delete(i);
+  } else {
+    cookState.checkedIngredients.add(i);
+  }
+  renderCookStep();
+}
+
+function cookNext() {
+  if (!cookState) return;
+  const total = cookState.recipe.steps.length;
+  if (cookState.step >= total - 1) {
+    closeCook();
+    return;
+  }
+  cookState.step++;
+  renderCookMode();
+}
+
+function cookPrev() {
+  if (!cookState || cookState.step === 0) return;
+  cookState.step--;
+  renderCookMode();
+}
+
+function closeCook() {
+  document.getElementById('cookMode').style.display = 'none';
+  cookState = null;
+}
+
+function toggleVoice() {
+  state.voiceEnabled = !state.voiceEnabled;
+  const btn = document.querySelector('.cook-voice');
+  if (btn) btn.classList.toggle('active', state.voiceEnabled);
+}
+
+// ========== PLANNER ==========
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const MEALS = ['B','L','D'];
+const MEAL_LABELS = {B:'Breakfast',L:'Lunch',D:'Dinner'};
+
+function renderPlanner() {
+  const page = document.getElementById('page-planner');
+  
+  page.innerHTML = `
+    <div class="page-header">
+      <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700">Meal Planner</div>
+      <button class="icon-btn" onclick="clearPlan()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+      </button>
+    </div>
+    
+    <div style="overflow-x:auto;padding-bottom:8px">
+      <div class="planner-grid" style="min-width:380px">
+        <div></div>
+        ${DAYS.map(d => `<div class="planner-day-header">${d}</div>`).join('')}
+        ${MEALS.map(m => `
+          <div class="planner-meal-label" style="font-size:10px;color:var(--text3)">${m}</div>
+          ${DAYS.map(d => {
+            const key = d + '_' + m;
+            const rid = state.plan[key];
+            const r = rid ? recipes.find(x => x.id == rid) : null;
+            return `<div class="planner-slot ${r?'filled':''}" onclick="openPlannerPicker('${d}','${m}')">
+              ${r ? r.name.split(' ').slice(0,2).join(' ') : '+'}
+            </div>`;
+          }).join('')}
+        `).join('')}
+      </div>
+    </div>
+    
+    <div style="padding:16px">
+      ${Object.keys(state.plan).length ? `
+        <div class="section-title">This Week</div>
+        ${DAYS.map(d => {
+          const meals = MEALS.map(m => {
+            const r = recipes.find(x => x.id == state.plan[d+'_'+m]);
+            return r ? `<div style="font-size:13px;color:var(--text2);margin-bottom:4px">${MEAL_LABELS[m]}: ${r.name}</div>` : '';
+          }).join('');
+          return meals ? `<div style="margin-bottom:12px"><div style="font-weight:600;font-size:14px;margin-bottom:6px">${d}</div>${meals}</div>` : '';
+        }).join('')}
+      ` : `<div class="empty-state"><div class="empty-emoji">📅</div><div class="empty-text">Tap a slot to plan a meal</div></div>`}
+    </div>
+  `;
+}
+
+function openPlannerPicker(day, meal) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">${MEAL_LABELS[meal]} · ${day}</div>
+      <div class="modal-recipe-list">
+        ${state.plan[day+'_'+meal] ? `<div class="modal-recipe-item" style="border-color:var(--red)" onclick="removePlanItem('${day}','${meal}')"><span style="color:var(--red)">✕ Remove</span></div>` : ''}
+        ${recipes.filter(r => !['reference','cheat sheet'].some(t=>(r.tags||[]).includes(t))).map(r => `
+          <div class="modal-recipe-item" onclick="setPlanItem('${day}','${meal}',${r.id})">
+            <span style="font-size:20px">${getEmoji(r)}</span>
+            <div>
+              <div class="modal-recipe-name">${r.name}</div>
+              <div class="modal-recipe-carbs">${r.carbs}g carbs · ${r.time}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  overlay.onclick = () => document.body.removeChild(overlay);
+  document.body.appendChild(overlay);
+}
+
+function setPlanItem(day, meal, id) {
+  state.plan[day+'_'+meal] = id;
+  localStorage.setItem('kk_plan', JSON.stringify(state.plan));
+  document.querySelectorAll('.modal-overlay').forEach(el => el.remove());
+  renderPlanner();
+}
+
+function removePlanItem(day, meal) {
+  delete state.plan[day+'_'+meal];
+  localStorage.setItem('kk_plan', JSON.stringify(state.plan));
+  document.querySelectorAll('.modal-overlay').forEach(el => el.remove());
+  renderPlanner();
+}
+
+function clearPlan() {
+  if (confirm('Clear entire meal plan?')) {
+    state.plan = {};
+    localStorage.setItem('kk_plan', JSON.stringify(state.plan));
+    renderPlanner();
+  }
+}
+
+// ========== SHOPPING ==========
+function renderShopping() {
+  const page = document.getElementById('page-shopping');
+  const cats = {};
+  state.shop.forEach(item => {
+    if (!cats[item.cat]) cats[item.cat] = [];
+    cats[item.cat].push(item);
+  });
+  
+  page.innerHTML = `
+    <div class="page-header">
+      <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700">Shopping List</div>
+      <div class="page-header-actions">
+        <button class="icon-btn" onclick="addShopItem()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button class="icon-btn" onclick="clearChecked()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+        </button>
+      </div>
+    </div>
+    
+    ${Object.keys(cats).length ? `
+      <div class="shop-section">
+        ${Object.entries(cats).map(([cat, items]) => `
+          <div class="shop-cat-title">${cat}</div>
+          ${items.map(item => `
+            <div class="shop-item">
+              <div class="shop-check ${item.checked?'checked':''}" onclick="toggleShopItem('${item.id}')">
+                ${item.checked ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+              </div>
+              <span class="shop-item-name ${item.checked?'done':''}">${item.name}</span>
+              <button class="shop-del" onclick="deleteShopItem('${item.id}')">✕</button>
+            </div>
+          `).join('')}
+        `).join('')}
+      </div>
+    ` : `<div class="empty-state"><div class="empty-emoji">🛒</div><div class="empty-text">Your shopping list is empty</div></div>`}
+  `;
+}
+
+function toggleShopItem(id) {
+  const item = state.shop.find(i => i.id == id);
+  if (item) item.checked = !item.checked;
+  localStorage.setItem('kk_shop', JSON.stringify(state.shop));
+  renderShopping();
+}
+
+function deleteShopItem(id) {
+  state.shop = state.shop.filter(i => i.id != id);
+  localStorage.setItem('kk_shop', JSON.stringify(state.shop));
+  renderShopping();
+}
+
+function clearChecked() {
+  state.shop = state.shop.filter(i => !i.checked);
+  localStorage.setItem('kk_shop', JSON.stringify(state.shop));
+  renderShopping();
+}
+
+function addShopItem() {
+  const name = prompt('Add item:');
+  if (!name) return;
+  state.shop.push({id: Date.now(), name, cat: catFor(name), checked: false});
+  localStorage.setItem('kk_shop', JSON.stringify(state.shop));
+  renderShopping();
+}
+
+// ========== CHAT ==========
+function renderChat() {
+  const page = document.getElementById('page-chat');
+  if (page.querySelector('.chat-messages')) return; // already rendered
+  
+  page.innerHTML = `
+    <div style="padding:16px 16px 8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:18px">🧑‍🍳</div>
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700">Chef AI</div>
+        <div style="font-size:12px;color:var(--green)">● Online</div>
+      </div>
+      <button class="icon-btn" style="margin-left:auto" onclick="clearChat()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+      </button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      ${state.chatMessages.length === 0 ? `
+        <div class="chat-bubble ai animate-in">
+          👋 Hi! I'm your personal keto chef assistant. Ask me to suggest recipes, add them to your cookbook, plan your meals, or get advice about low-carb cooking!
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;padding:4px 0">
+          ${['Suggest a keto dinner','Add a recipe for me','What can I eat tonight?','Low carb snack ideas'].map(q => 
+            `<button style="padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;color:var(--text2);font-size:12px;cursor:pointer" onclick="quickAsk('${q}')">${q}</button>`
+          ).join('')}
+        </div>
+      ` : state.chatMessages.map(m => `
+        <div class="chat-bubble ${m.role} animate-in">${m.content}</div>
+      `).join('')}
+    </div>
+    <div class="chat-input-wrap">
+      <input class="chat-input" id="chatInput" placeholder="Ask your chef..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="chat-send" onclick="sendChat()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  `;
+}
+
+function quickAsk(q) {
+  document.getElementById('chatInput').value = q;
+  sendChat();
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+  
+  const msgs = document.getElementById('chatMessages');
+  
+  // Add user bubble
+  state.chatMessages.push({role:'user', content: q});
+  const userBubble = document.createElement('div');
+  userBubble.className = 'chat-bubble user animate-in';
+  userBubble.textContent = q;
+  msgs.appendChild(userBubble);
+  
+  // Loading
+  const loading = document.createElement('div');
+  loading.className = 'chat-bubble ai';
+  loading.innerHTML = '<div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>';
+  msgs.appendChild(loading);
+  msgs.scrollTop = msgs.scrollHeight;
+  
+  try {
+    const res = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        messages: [{role:'user', content: q}],
+        recipes: recipes.map(r => ({id:r.id, name:r.name, carbs:r.carbs, tags:r.tags})),
+        plan: state.plan,
+        shop: state.shop
+      })
+    });
+    const data = await res.json();
+    const text = data.content || 'Sorry, I could not get a response.';
+    
+    // Handle actions
+    let displayText = text;
+    if (text.includes('ACTION:')) {
+      const parts = text.split('ACTION:');
+      displayText = parts[0].trim();
+      try {
+        const action = JSON.parse(parts[1].trim());
+        handleChatAction(action);
+      } catch(e) {}
+    }
+    
+    loading.innerHTML = displayText;
+    state.chatMessages.push({role:'ai', content: displayText});
+    localStorage.setItem('kk_chat', JSON.stringify(state.chatMessages.slice(-20)));
+    
+  } catch(e) {
+    loading.innerHTML = 'Error connecting. Please try again.';
+  }
+  
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function handleChatAction(action) {
+  if (action.type === 'add_recipe' && action.recipe) {
+    const r = {...action.recipe, id: Date.now()};
+    recipes.push(r);
+    ALL.push(r);
+    // Save to localStorage
+    const saved = JSON.parse(localStorage.getItem('kk_extra_recipes') || '[]');
+    saved.push(r);
+    localStorage.setItem('kk_extra_recipes', JSON.stringify(saved));
+    
+    const msgs = document.getElementById('chatMessages');
+    const note = document.createElement('div');
+    note.style.cssText = 'text-align:center;padding:8px;font-size:12px;color:var(--green);';
+    note.textContent = `✓ "${r.name}" added to your cookbook!`;
+    msgs.appendChild(note);
+  }
+  if (action.type === 'add_to_plan') {
+    const key = action.day + '_' + action.meal;
+    state.plan[key] = action.recipeId;
+    localStorage.setItem('kk_plan', JSON.stringify(state.plan));
+  }
+  if (action.type === 'add_to_shop' && action.items) {
+    action.items.forEach(item => {
+      state.shop.push({id: Date.now() + Math.random(), name: item.name, cat: item.cat || 'Pantry', checked: false});
+    });
+    localStorage.setItem('kk_shop', JSON.stringify(state.shop));
+  }
+}
+
+function clearChat() {
+  state.chatMessages = [];
+  localStorage.removeItem('kk_chat');
+  const page = document.getElementById('page-chat');
+  page.innerHTML = '';
+  renderChat();
+}
+
+// Load any extra recipes saved from chat
+const extraRecipes = JSON.parse(localStorage.getItem('kk_extra_recipes') || '[]');
+extraRecipes.forEach(r => {
+  if (!recipes.find(x => x.id === r.id)) {
+    recipes.push(r);
+  }
+});
+
+// ========== INIT ==========
+nav('home');
+</script>
+</body>
+</html>
